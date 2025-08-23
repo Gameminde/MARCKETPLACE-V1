@@ -1,0 +1,359 @@
+{
+  "templates": [
+    {
+      "id": "feminine",
+      "name": "Féminin",
+      "description": "Design élégant avec couleurs douces et typographie féminine",
+      "category": "gendered",
+      "preview_url": "/templates/feminine-preview.jpg",
+      "tags": ["élégant", "doux", "romantique", "chic"],
+      "config": {
+        "colors": {
+          "primary": "#FF69B4",
+          "secondary": "#FFC0CB",
+          "accent": "#FF1493",
+          "background": "#FFF5F5",
+          "surface": "#FFFFFF",
+          "text": "#333333",
+          "textSecondary": "#666666",
+          "border": "#FFE4E1",
+          "shadow": "rgba(255, 105, 180, 0.1)",
+          "success": "#FF69B4",
+          "warning": "#FFB6C1",
+          "error": "#FF69B4"
+        },
+        "typography": {
+          "fontFamily": "Poppins",
+          "headingSize": 24,
+          "bodySize": 16,
+          "fontWeight": "400",
+          "lineHeight": 1.6,
+          "letterSpacing": "0.5px"
+        },
+        "layout": {
+          "gridColumns": 2,
+          "spacing": "comfortable",
+          "borderRadius": 15,
+          "cardElevation": 2,
+          "padding": "20px",
+          "margin": "16px",
+          "gap": "24px"
+        },
+        "animations": {
+          "transition": "soft",
+          "duration": 300,
+          "easing": "ease-in-out",
+          "hoverScale": 1.02,
+          "hoverElevation": 4
+        },
+        "components": {
+          "button": {
+            "style": "rounded",
+            "padding": "12px 24px",
+            "borderRadius": "25px",
+            "shadow": "0 4px 15px rgba(255, 105, 180, 0.3)"
+          },
+          "card": {
+            "style": "soft",
+            "borderRadius": "20px",
+            "shadow": "0 8px 25px rgba(255, 105, 180, 0.15)",
+            "hoverShadow": "0 12px 35px rgba(255, 105, 180, 0.25)"
+          },
+          "input": {
+            "style": "elegant",
+            "borderRadius": "12px",
+            "borderColor": "#FFE4E1",
+            "focusColor": "#FF69B4"
+          }
+        }
+      }
+    },
+    {
+      "id": "masculine",
+      "name": "Masculin",
+      "description": "Design moderne avec couleurs neutres et typographie robuste",
+      "category": "gendered",
+      "preview_url": "/templates/masculine-preview.jpg",
+      "tags": ["moderne", "robuste", "professionnel", "minimaliste"],
+      "config": {
+        "colors": {
+          "primary": "#2C3E50",
+          "secondary": "#34495E",
+          "accent": "#3498DB",
+          "background": "#F8F9FA",
+          "surface": "#FFFFFF",
+          "text": "#2C3E50",
+          "textSecondary": "#7F8C8D",
+          "border": "#E9ECEF",
+          "shadow": "rgba(44, 62, 80, 0.1)",
+          "success": "#27AE60",
+          "warning": "#F39C12",
+          "error": "#E74C3C"
+        },
+        "typography": {
+          "fontFamily": "Roboto",
+          "headingSize": 26,
+          "bodySize": 16,
+          "fontWeight": "500",
+          "lineHeight": 1.5,
+          "letterSpacing": "0.3px"
+        },
+        "layout": {
+          "gridColumns": 1,
+          "spacing": "compact",
+          "borderRadius": 8,
+          "cardElevation": 1,
+          "padding": "16px",
+          "margin": "12px",
+          "gap": "16px"
+        },
+        "animations": {
+          "transition": "sharp",
+          "duration": 200,
+          "easing": "ease-out",
+          "hoverScale": 1.01,
+          "hoverElevation": 2
+        },
+        "components": {
+          "button": {
+            "style": "angular",
+            "padding": "14px 28px",
+            "borderRadius": "6px",
+            "shadow": "0 2px 8px rgba(44, 62, 80, 0.2)"
+          },
+          "card": {
+            "style": "clean",
+            "borderRadius": "8px",
+            "shadow": "0 2px 10px rgba(44, 62, 80, 0.1)",
+            "hoverShadow": "0 4px 15px rgba(44, 62, 80, 0.15)"
+          },
+          "input": {
+            "style": "modern",
+            "borderRadius": "6px",
+            "borderColor": "#E9ECEF",
+            "focusColor": "#3498DB"
+          }
+        }
+      }
+    },
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "description": "Design épuré et moderne avec focus sur le contenu",
+      "category": "style",
+      "preview_url": "/templates/minimal-preview.jpg",
+      "tags": ["épuré", "moderne", "simple", "élégant"],
+      "config": {
+        "colors": {
+          "primary": "#000000",
+          "secondary": "#666666",
+          "accent": "#FF4444",
+          "background": "#FFFFFF",
+          "surface": "#F9F9F9",
+          "text": "#000000",
+          "textSecondary": "#666666",
+          "border": "#E5E5E5",
+          "shadow": "rgba(0, 0, 0, 0.05)",
+          "success": "#000000",
+          "warning": "#666666",
+          "error": "#FF4444"
+        },
+        "typography": {
+          "fontFamily": "Inter",
+          "headingSize": 22,
+          "bodySize": 14,
+          "fontWeight": "300",
+          "lineHeight": 1.4,
+          "letterSpacing": "0.2px"
+        },
+        "layout": {
+          "gridColumns": 3,
+          "spacing": "minimal",
+          "borderRadius": 0,
+          "cardElevation": 0,
+          "padding": "12px",
+          "margin": "8px",
+          "gap": "12px"
+        },
+        "animations": {
+          "transition": "subtle",
+          "duration": 150,
+          "easing": "ease",
+          "hoverScale": 1.005,
+          "hoverElevation": 0
+        },
+        "components": {
+          "button": {
+            "style": "minimal",
+            "padding": "10px 20px",
+            "borderRadius": "0px",
+            "shadow": "none"
+          },
+          "card": {
+            "style": "minimal",
+            "borderRadius": "0px",
+            "shadow": "none",
+            "hoverShadow": "0 1px 3px rgba(0, 0, 0, 0.1)"
+          },
+          "input": {
+            "style": "minimal",
+            "borderRadius": "0px",
+            "borderColor": "#E5E5E5",
+            "focusColor": "#000000"
+          }
+        }
+      }
+    },
+    {
+      "id": "urban",
+      "name": "Urbain",
+      "description": "Style street et moderne avec couleurs vibrantes",
+      "category": "style",
+      "preview_url": "/templates/urban-preview.jpg",
+      "tags": ["street", "vibrant", "moderne", "dynamique"],
+      "config": {
+        "colors": {
+          "primary": "#FF6B35",
+          "secondary": "#F7931E",
+          "accent": "#FFD23F",
+          "background": "#1A1A1A",
+          "surface": "#2A2A2A",
+          "text": "#FFFFFF",
+          "textSecondary": "#CCCCCC",
+          "border": "#FF6B35",
+          "shadow": "rgba(255, 107, 53, 0.3)",
+          "success": "#FFD23F",
+          "warning": "#F7931E",
+          "error": "#FF4444"
+        },
+        "typography": {
+          "fontFamily": "Oswald",
+          "headingSize": 28,
+          "bodySize": 16,
+          "fontWeight": "600",
+          "lineHeight": 1.3,
+          "letterSpacing": "1px"
+        },
+        "layout": {
+          "gridColumns": 2,
+          "spacing": "wide",
+          "borderRadius": 12,
+          "cardElevation": 3,
+          "padding": "24px",
+          "margin": "20px",
+          "gap": "32px"
+        },
+        "animations": {
+          "transition": "dynamic",
+          "duration": 400,
+          "easing": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+          "hoverScale": 1.05,
+          "hoverElevation": 6
+        },
+        "components": {
+          "button": {
+            "style": "urban",
+            "padding": "16px 32px",
+            "borderRadius": "8px",
+            "shadow": "0 6px 20px rgba(255, 107, 53, 0.4)"
+          },
+          "card": {
+            "style": "urban",
+            "borderRadius": "12px",
+            "shadow": "0 8px 25px rgba(255, 107, 53, 0.2)",
+            "hoverShadow": "0 12px 35px rgba(255, 107, 53, 0.3)"
+          },
+          "input": {
+            "style": "urban",
+            "borderRadius": "8px",
+            "borderColor": "#FF6B35",
+            "focusColor": "#FFD23F"
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral",
+      "name": "Neutre",
+      "description": "Design polyvalent et professionnel pour tous les publics",
+      "category": "universal",
+      "preview_url": "/templates/neutral-preview.jpg",
+      "tags": ["polyvalent", "professionnel", "universel", "équilibré"],
+      "config": {
+        "colors": {
+          "primary": "#6366F1",
+          "secondary": "#8B5CF6",
+          "accent": "#10B981",
+          "background": "#F9FAFB",
+          "surface": "#FFFFFF",
+          "text": "#374151",
+          "textSecondary": "#6B7280",
+          "border": "#E5E7EB",
+          "shadow": "rgba(99, 102, 241, 0.1)",
+          "success": "#10B981",
+          "warning": "#F59E0B",
+          "error": "#EF4444"
+        },
+        "typography": {
+          "fontFamily": "System",
+          "headingSize": 24,
+          "bodySize": 16,
+          "fontWeight": "400",
+          "lineHeight": 1.5,
+          "letterSpacing": "0.4px"
+        },
+        "layout": {
+          "gridColumns": 2,
+          "spacing": "normal",
+          "borderRadius": 10,
+          "cardElevation": 1,
+          "padding": "18px",
+          "margin": "14px",
+          "gap": "20px"
+        },
+        "animations": {
+          "transition": "smooth",
+          "duration": 250,
+          "easing": "ease-in-out",
+          "hoverScale": 1.02,
+          "hoverElevation": 3
+        },
+        "components": {
+          "button": {
+            "style": "balanced",
+            "padding": "12px 24px",
+            "borderRadius": "8px",
+            "shadow": "0 4px 12px rgba(99, 102, 241, 0.2)"
+          },
+          "card": {
+            "style": "balanced",
+            "borderRadius": "10px",
+            "shadow": "0 4px 15px rgba(99, 102, 241, 0.1)",
+            "hoverShadow": "0 6px 20px rgba(99, 102, 241, 0.15)"
+          },
+          "input": {
+            "style": "balanced",
+            "borderRadius": "8px",
+            "borderColor": "#E5E7EB",
+            "focusColor": "#6366F1"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-01-01T00:00:00.000Z",
+    "totalTemplates": 5,
+    "categories": ["gendered", "style", "universal"],
+    "features": [
+      "responsive_design",
+      "customizable_colors",
+      "typography_options",
+      "layout_variations",
+      "animation_support",
+      "component_styling"
+    ]
+  }
+}
+

@@ -1,0 +1,209 @@
+# 🎯 MARKETPLACE PROJECT RULES
+
+## CONTEXT
+You are working on a modern marketplace application similar to Temu/Amazon where users can create custom shops and instantly publish products with AI validation.
+
+## TECH STACK
+- Frontend: Flutter 3.19+ (Dart) with Material Design 3
+- Backend: Node.js + Express.js with security middleware
+- Databases: PostgreSQL (transactions) + MongoDB (products)
+- Auth: JWT + bcrypt with refresh tokens
+- Payments: Stripe Connect for marketplace
+- AI: Google Vision API for product validation
+- Deployment: Fly.io + Cloudflare + MongoDB Atlas (all free)
+
+## CODE STYLE
+
+### Flutter/Dart:
+- Use meaningful widget names (CustomShopCard, ProductUploadForm)
+- Implement proper state management with Provider/Riverpod
+- Always handle loading and error states
+- Use const constructors when possible
+- Follow Material Design 3 guidelines strictly
+- Implement responsive design (mobile-first)
+- Use GoRouter for navigation with named routes
+
+### Node.js/JavaScript:
+- Use async/await instead of Promises chains
+- Implement proper error handling with try-catch
+- Use descriptive variable names (shopId, productData, userProfile)
+- Add JSDoc comments for complex functions
+- Validate all inputs with Joi schemas
+- Use middleware for authentication and validation
+- Implement rate limiting and security headers
+
+### Database:
+- Use transactions for critical operations
+- Index frequently queried fields
+- Sanitize all database inputs
+- Use connection pooling
+- Implement proper error handling
+
+## SECURITY REQUIREMENTS
+- Always validate user inputs with Joi
+- Use parameterized queries
+- Implement rate limiting (100 req/15min per IP)
+- Hash passwords with bcrypt (12 rounds minimum)
+- Validate JWT tokens with rotation
+- Sanitize file uploads
+- Use HTTPS everywhere
+- Implement CORS properly
+- Use Helmet for security headers
+
+## API DESIGN
+- Use RESTful conventions
+- Version your APIs (/api/v1/)
+- Return consistent JSON responses
+- Include proper HTTP status codes
+- Implement pagination for lists
+- Add request/response logging
+- Use compression middleware
+
+## MARKETPLACE SPECIFIC
+- Template system: Support 5 base templates (Feminine, Masculine, Neutral, Urban, Minimal)
+- AI validation: Always validate products before publishing (<30 seconds)
+- Instant publishing: Process uploads in under 30 seconds
+- Commission system: Track marketplace fees (3-5%)
+- Shop customization: Allow color/font/layout changes
+- Gamification: Implement levels and badges for sellers
+
+## PERFORMANCE
+- Optimize images automatically with Sharp
+- Implement caching strategies with Redis
+- Use pagination for large datasets
+- Minimize API calls
+- Implement lazy loading
+- Compress responses
+- Use CDN for static assets
+
+## ERROR HANDLING
+- Always provide user-friendly error messages
+- Log detailed errors for debugging
+- Implement retry mechanisms
+- Handle network timeouts
+- Provide fallback options
+- Use global error middleware
+
+## TESTING
+- Write unit tests for business logic
+- Test API endpoints with proper mocking
+- Test Flutter widgets
+- Test error scenarios
+- Test authentication flows
+- Test payment flows
+
+## COMMENTS
+- Explain complex business logic
+- Document API endpoints
+- Explain template system logic
+- Document AI validation rules
+- Explain payment flow
+- Document security measures
+
+## EXAMPLES TO FOLLOW
+
+### Good Flutter Widget:
+```dart
+class ProductCard extends StatelessWidget {
+  const ProductCard({
+    Key? key,
+    required this.product,
+    this.onTap,
+  }) : super(key: key);
+
+  final Product product;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          children: [
+            // Implementation
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Good API Endpoint:
+```javascript
+/**
+ * Create a new product with AI validation
+ */
+router.post('/products', authMiddleware, async (req, res) => {
+  try {
+    const { error, value } = productSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message
+      });
+    }
+
+    // AI validation
+    const validationResult = await aiValidationService.validateProduct(value);
+    
+    if (!validationResult.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product validation failed',
+        errors: validationResult.errors
+      });
+    }
+
+    const product = await productService.create(value);
+    
+    res.status(201).json({
+      success: true,
+      data: product
+    });
+  } catch (error) {
+    logger.error('Product creation failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+```
+
+## AVOID
+- Hard-coded values
+- Unvalidated user inputs
+- Synchronous operations for I/O
+- Missing error handling
+- Unclear variable names
+- Deeply nested callbacks
+- Missing authentication checks
+- Unoptimized database queries
+- Missing security headers
+- Uncompressed responses
+
+## PRIORITY FEATURES
+1. **Authentication System** - JWT + bcrypt + refresh tokens
+2. **Template System** - 5 templates with customization
+3. **AI Validation** - Google Vision API integration
+4. **Payment System** - Stripe Connect marketplace
+5. **Gamification** - Levels and badges for sellers
+6. **Real-time Features** - Notifications and updates
+
+## DEPLOYMENT
+- Use Fly.io for backend (3 VMs free)
+- Use MongoDB Atlas (512MB free)
+- Use Neon PostgreSQL (1GB free)
+- Use Cloudflare (100GB/month free)
+- Use Firebase (notifications free)
+- Implement CI/CD with GitHub Actions
+
+## MONITORING
+- Use Sentry for error tracking (5k errors/month free)
+- Implement health checks
+- Monitor API response times
+- Track user engagement metrics
+- Monitor payment success rates
+
