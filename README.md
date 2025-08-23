@@ -406,3 +406,4 @@ cd app && flutter run      # Terminal 2
   <p>Construit avec ❤️ et ☕ par l'équipe Marketplace</p>
 </div>
 
+
