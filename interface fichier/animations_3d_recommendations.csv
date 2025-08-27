@@ -1,0 +1,9 @@
+Element,Animation_Type,Duration_ms,Trigger,Effect,Psychology
+Product Cards,3D Float & Scale,300,Hover/Touch,Élévation 8px + rotation 3°,Attention + Premium feeling
+Hero Banner,Parallax 3D Layers,800,Scroll,Couches multiples profondeur,Immersion + Modernité
+Button CTA,Morphing + Glow,200,Press,Transformation forme + halo,Satisfaction + Récompense
+Navigation Menu,Sliding Glass,400,Menu Open,Glassmorphisme + slide,Fluidité + Modernité
+Product Gallery,3D Carousel,500,Swipe,Rotation 3D + fade,Contrôle + Exploration
+Search Bar,Expanding Glass,250,Focus,Expansion + backdrop blur,Focus + Simplicité
+Loading States,Morphing Spheres,1000,Data Load,Sphères qui se transforment,Patience + Anticipation
+Success Feedback,Particle Explosion,600,Action Success,Particules + confetti 3D,Accomplissement + Joie
