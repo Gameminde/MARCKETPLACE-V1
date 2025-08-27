@@ -1,0 +1,40 @@
+{
+  "name": "glassify-forge-mcp-extensions",
+  "version": "1.0.0",
+  "description": "MCP servers for enhanced design capabilities in Glassify Forge",
+  "scripts": {
+    "install-mcps": "npm run install:design && npm run install:3d && npm run install:performance",
+    "install:design": "npm install @modelcontextprotocol/server-figma @modelcontextprotocol/server-tailwind",
+    "install:3d": "npm install @modelcontextprotocol/server-threejs @modelcontextprotocol/server-blender",
+    "install:performance": "npm install @modelcontextprotocol/server-vite @modelcontextprotocol/server-react-perf",
+    "install:animation": "npm install @modelcontextprotocol/server-framer-motion @modelcontextprotocol/server-gsap",
+    "install:marketplace": "npm install @modelcontextprotocol/server-ecommerce @modelcontextprotocol/server-analytics",
+    "setup-mcp": "node setup-mcp.js"
+  },
+  "mcpServers": {
+    "design": [
+      "@modelcontextprotocol/server-figma",
+      "@modelcontextprotocol/server-tailwind"
+    ],
+    "3d": [
+      "@modelcontextprotocol/server-threejs",
+      "@modelcontextprotocol/server-blender"
+    ],
+    "animation": [
+      "@modelcontextprotocol/server-framer-motion",
+      "@modelcontextprotocol/server-gsap"
+    ],
+    "performance": [
+      "@modelcontextprotocol/server-vite",
+      "@modelcontextprotocol/server-react-perf"
+    ],
+    "marketplace": [
+      "@modelcontextprotocol/server-ecommerce",
+      "@modelcontextprotocol/server-analytics"
+    ]
+  },
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-figma"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "your_figma_token_here"
+      }
+    },
+    "threejs": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-threejs"],
+      "env": {}
+    },
+    "tailwind": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-tailwind"],
+      "env": {}
+    },
+    "framer-motion": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-framer-motion"],
+      "env": {}
+    },
+    "vite": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-vite"],
+      "env": {}
+    },
+    "react-perf": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-react-perf"],
+      "env": {}
+    },
+    "blender": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-blender"],
+      "env": {
+        "BLENDER_PATH": "/path/to/blender"
+      }
+    },
+    "gsap": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-gsap"],
+      "env": {}
+    },
+    "ecommerce": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-ecommerce"],
+      "env": {}
+    },
+    "analytics": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-analytics"],
+      "env": {}
+    }
+  },
+  "designCapabilities": {
+    "3d": {
+      "enabled": true,
+      "engines": ["three.js", "blender"],
+      "features": ["particles", "lighting", "materials", "animations"]
+    },
+    "ui": {
+      "enabled": true,
+      "frameworks": ["tailwind", "framer-motion"],
+      "features": ["glassmorphism", "neon-effects", "micro-interactions"]
+    },
+    "performance": {
+      "enabled": true,
+      "tools": ["vite", "react-perf"],
+      "features": ["lazy-loading", "code-splitting", "optimization"]
+    },
+    "marketplace": {
+      "enabled": true,
+      "features": ["product-showcase", "3d-previews", "interactive-catalog"]
+    }
+  }
+}
