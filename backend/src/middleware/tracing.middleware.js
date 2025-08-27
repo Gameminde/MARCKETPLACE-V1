@@ -2,8 +2,9 @@ const { v4: uuidv4 } = require('uuid');
 
 class TracingMiddleware {
   constructor() {
+    // Utiliser Map simple au lieu de LRU pour éviter les problèmes de compatibilité
     this.traces = new Map();
-    this.maxTraces = 1000; // Limite pour éviter les fuites mémoire
+    this.maxTraces = 1000;
     this.cleanupInterval = null;
     this.startCleanup();
   }

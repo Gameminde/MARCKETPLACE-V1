@@ -33,7 +33,53 @@ const shopValidationSchema = Joi.object({
       logo_url: Joi.string().uri(),
       favicon_url: Joi.string().uri(),
       hero_image_url: Joi.string().uri(),
-      custom_css: Joi.string().max(10000)
+      custom_css: Joi.string().max(10000).custom((value, helpers) => {
+        if (value && typeof value === 'string') {
+          // Sanitisation CSS complète - bloquer TOUTES les propriétés dangereuses
+          const dangerousCSS = [
+            'javascript:', 'vbscript:', 'expression(', 'eval(', 'import(', 'url(',
+            'behavior:', 'binding:', 'filter:', 'progid:', 'mso-', 'zoom:',
+            'expression', 'javascript', 'vbscript', 'onload', 'onerror', 'onclick',
+            'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit',
+            'background-image:url(', 'background:url(', 'list-style-image:url(',
+            'cursor:url(', 'border-image:url(', 'content:url(',
+            'calc(', 'attr(', 'counter(', 'counters(', 'var(',
+            'linear-gradient(', 'radial-gradient(', 'conic-gradient(',
+            'repeating-linear-gradient', 'repeating-radial-gradient'
+          ];
+          
+          const lowerValue = value.toLowerCase();
+          for (const dangerous of dangerousCSS) {
+            if (lowerValue.includes(dangerous)) {
+              return helpers.error('custom_css.dangerous_property');
+            }
+          }
+          
+          // Bloquer les URLs externes (seulement data: et relative)
+          if (lowerValue.includes('url(') && 
+              !lowerValue.includes('url("data:') && 
+              !lowerValue.includes('url(\'data:') &&
+              !lowerValue.includes('url(./') &&
+              !lowerValue.includes('url(../') &&
+              !lowerValue.includes('url(/')) {
+            return helpers.error('custom_css.external_url');
+          }
+          
+          // Bloquer les propriétés CSS dangereuses
+          const dangerousProperties = [
+            'position:fixed', 'position:absolute', 'z-index:999999',
+            'opacity:0', 'visibility:hidden', 'display:none',
+            'clip:rect(', 'overflow:hidden', 'text-indent:-9999px'
+          ];
+          
+          for (const prop of dangerousProperties) {
+            if (lowerValue.includes(prop)) {
+              return helpers.error('custom_css.dangerous_property');
+            }
+          }
+        }
+        return value;
+      }, 'CSS sanitization')
     })
   }),
   settings: Joi.object({
@@ -227,10 +273,37 @@ const shopSchema = new mongoose.Schema({
           message: 'Hero image URL doit être une URL valide'
         }
       },
-      custom_css: {
-        type: String,
-        maxlength: 10000
-      }
+              custom_css: {
+          type: String,
+          maxlength: 10000,
+          validate: {
+            validator: function(v) {
+              if (!v) return true;
+              
+              // Sanitisation CSS - bloquer les propriétés dangereuses
+              const dangerousCSS = [
+                'javascript:', 'expression(', 'eval(', 'import(', 'url(',
+                'behavior:', 'binding:', 'filter:', 'progid:', 'mso-',
+                'expression', 'javascript', 'vbscript', 'onload', 'onerror'
+              ];
+              
+              const lowerValue = v.toLowerCase();
+              for (const dangerous of dangerousCSS) {
+                if (lowerValue.includes(dangerous)) {
+                  return false;
+                }
+              }
+              
+              // Bloquer les URLs externes
+              if (lowerValue.includes('url(') && !lowerValue.includes('url("data:')) {
+                return false;
+              }
+              
+              return true;
+            },
+            message: 'CSS contains dangerous properties or external URLs'
+          }
+        }
     }
   },
   settings: {

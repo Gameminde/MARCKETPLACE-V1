@@ -25,8 +25,8 @@ class ErrorMiddleware {
     const statusCode = this.getStatusCode(errorType);
     const userMessage = this.getUserMessage(errorType);
 
-    // Réponse structurée
-    res.status(statusCode).json({
+    // Réponse structurée avec stack trace conditionnel
+    const response = {
       success: false,
       error: {
         code: errorType,
@@ -34,7 +34,17 @@ class ErrorMiddleware {
         timestamp: new Date().toISOString(),
         requestId: req.id || req.traceId || 'unknown'
       }
-    });
+    };
+    
+    // Ajouter stack trace seulement en dev/staging
+    const isDev = process.env.NODE_ENV === 'development';
+    const isStaging = process.env.NODE_ENV === 'staging';
+    
+    if ((isDev || isStaging) && err.stack) {
+      response.error.stack = err.stack;
+    }
+    
+    res.status(statusCode).json(response);
   }
 
   handleNotFound(req, res, next) {

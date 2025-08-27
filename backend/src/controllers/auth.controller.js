@@ -2,11 +2,15 @@ const bcrypt = require('bcryptjs');
 const Joi = require('joi');
 const { UserMongo } = require('../models/User');
 const { signAccessToken, signRefreshToken } = require('../utils/tokens');
-const { blacklistToken } = require('../services/redis.service');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
-// In-memory blacklist simple (replace with Redis in prod)
-const blacklistedTokens = new Set();
+// Hash dummy optimal pré-calculé pour protection timing attack
+// Utilise un hash fixe pour éviter la régénération à chaque démarrage
+const DUMMY_HASH = '$2b$12$ZpZyHzTmPbDdLwJvAeE3GuJlw/7mXlZBtQb7lqfhGJbZqTJlqvZ7e';
+
+// Service de blacklist sécurisé externe
+const tokenBlacklistService = require('../services/token-blacklist.service');
 
 const passwordSchema = Joi.string()
   .min(8)
@@ -68,19 +72,37 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const startTime = Date.now();
-  const intelligentDelay = require('../utils/intelligent-delay');
-  const targetDelay = await intelligentDelay.calculateDelay(req.body?.email);
   try {
     const { error, value } = loginSchema.validate(req.body);
     if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    const user = await UserMongo.findOne({ email: value.email });
-    // Valid dummy hash (bcrypt 12) to equalize comparison time
-    const dummyHash = '$2b$12$LQv3c1yqBwEHxb5T8jLOReeMvz9B1SfsNUd7tgYJ9iB7yNJkQNRV6';
-    const hashToCompare = user?.password || dummyHash;
+    // Protection timing attack: recherche utilisateur avec délai constant
+    let user = null;
+    let hashToCompare = null;
+    
+    try {
+      user = await UserMongo.findOne({ email: value.email });
+      if (user) {
+        hashToCompare = user.password;
+      }
+    } catch (err) {
+      // Continue sans user en cas d'erreur
+    }
+    
+    // Si pas d'utilisateur, utiliser le hash dummy pré-calculé pour timing constant
+    if (!hashToCompare) {
+      hashToCompare = DUMMY_HASH;
+    }
+    
     const match = await bcrypt.compare(value.password, hashToCompare);
-    // Constant minimum delay using intelligent delay
-    await intelligentDelay.applyDelay(startTime, targetDelay);
+    
+    // Force minimum 200ms delay pour protection timing attack
+    const elapsed = Date.now() - startTime;
+    const minDelay = 200;
+    if (elapsed < minDelay) {
+      await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+    }
+    
     if (!user || !match) return res.status(401).json({ success: false, code: 'INVALID_CREDENTIALS' });
 
     user.lastLoginAt = new Date();
@@ -110,7 +132,7 @@ const logout = async (req, res) => {
   try {
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
-    if (token) await blacklistToken(token);
+    if (token) await tokenBlacklistService.blacklistToken(token);
     structuredLogger.logAuthEvent('LOGOUT', { userId: req.user?.sub, ip: req.ip, userAgent: req.headers['user-agent'] });
     return res.json({ success: true, message: 'Logged out' });
   } catch (err) {
@@ -118,26 +140,59 @@ const logout = async (req, res) => {
   }
 };
 
-const getRefreshSecret = () => process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+const getRefreshSecret = () => {
+  if (!process.env.JWT_REFRESH_SECRET) {
+    console.error('❌ CRITICAL: JWT_REFRESH_SECRET environment variable is missing');
+    return null;
+  }
+  if (process.env.JWT_REFRESH_SECRET === process.env.JWT_SECRET) {
+    console.error('❌ CRITICAL: JWT_REFRESH_SECRET must be different from JWT_SECRET');
+    return null;
+  }
+  return process.env.JWT_REFRESH_SECRET;
+};
 
 const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body || {};
     if (!refreshToken) return res.status(400).json({ success: false, code: 'MISSING_REFRESH_TOKEN' });
-    const decoded = jwt.verify(refreshToken, getRefreshSecret());
+    
+    const secret = getRefreshSecret();
+    if (!secret) {
+      return res.status(500).json({ success: false, code: 'CONFIGURATION_ERROR' });
+    }
+    
+    const decoded = jwt.verify(refreshToken, secret);
+    
+    // Vérifier le type de token (doit être refresh)
+    if (decoded.type !== 'refresh') {
+      return res.status(401).json({ success: false, code: 'INVALID_TOKEN_TYPE' });
+    }
+    
     const user = await UserMongo.findById(decoded.sub);
     if (!user) return res.status(401).json({ success: false, code: 'USER_NOT_FOUND' });
-    await blacklistToken(refreshToken);
+    
+    await tokenBlacklistService.blacklistToken(refreshToken);
     const newAccessToken = signAccessToken({ sub: user.id, role: user.role, email: user.email });
     const newRefreshToken = signRefreshToken({ sub: user.id });
+    
     return res.json({ success: true, data: { accessToken: newAccessToken, refreshToken: newRefreshToken } });
   } catch (err) {
+    // Gestion d'erreur JWT détaillée
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, code: 'TOKEN_EXPIRED' });
+    } else if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ success: false, code: 'INVALID_TOKEN_SIGNATURE' });
+    } else if (err.name === 'NotBeforeError') {
+      return res.status(401).json({ success: false, code: 'TOKEN_NOT_ACTIVE' });
+    }
+    
+    // Log de l'erreur pour debugging
+    console.error('Refresh token error:', err.name, err.message);
     return res.status(401).json({ success: false, code: 'INVALID_REFRESH_TOKEN' });
   }
 };
 
-const isBlacklisted = (token) => blacklistedTokens.has(token);
-
-module.exports = { register, login, me, logout, isBlacklisted, refreshToken };
+module.exports = { register, login, me, logout, refreshToken };
 
 

@@ -24,20 +24,23 @@ class DatabaseService {
         throw new Error('MONGODB_URI environment variable is required');
       }
 
-      // Pour le développement, on simule la connexion si c'est un URI localhost
-      if (mongoUri.includes('localhost') || mongoUri.includes('127.0.0.1')) {
-        console.log('🔄 Simulating MongoDB connection for local development...');
-        this.isConnected = true;
-        console.log('✅ MongoDB connection simulated successfully');
-        return;
-      }
+      // Log environnement sans exposer l'URI complète
+      const maskedUri = mongoUri.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
+      console.log(`🔄 Connecting to MongoDB environment: ${process.env.NODE_ENV}`);
+      console.log(`🔄 Masked URI: ${maskedUri}`);
 
-      console.log('🔄 Connecting to MongoDB...');
-      
       this.mongoConnection = await mongoose.connect(mongoUri, this.connectionOptions);
       
+      // VALIDATION RÉELLE OBLIGATOIRE - Pas de simulation
+      console.log('🔍 Validating MongoDB connection...');
+      await mongoose.connection.db.admin().ping();
+      console.log('✅ MongoDB ping successful');
+      
+      // Test écriture/lecture pour validation complète
+      await this.validateConnectionWriteRead();
+      
       this.isConnected = true;
-      console.log('✅ MongoDB connected successfully');
+      console.log('✅ MongoDB connected and validated successfully');
 
       // Event handlers
       mongoose.connection.on('error', (error) => {
@@ -55,14 +58,37 @@ class DatabaseService {
         this.isConnected = true;
       });
 
-      // Graceful shutdown
-      process.on('SIGINT', this.gracefulShutdown.bind(this));
-      process.on('SIGTERM', this.gracefulShutdown.bind(this));
-
     } catch (error) {
       console.error('❌ MongoDB connection failed:', error);
       this.isConnected = false;
       throw error;
+    }
+  }
+
+  async validateConnectionWriteRead() {
+    try {
+      const testDoc = {
+        _id: 'connection_test_' + Date.now(),
+        test: true,
+        timestamp: new Date()
+      };
+      
+      // Test écriture
+      const collection = mongoose.connection.db.collection('_connection_test');
+      await collection.insertOne(testDoc);
+      
+      // Test lecture
+      const retrieved = await collection.findOne({ _id: testDoc._id });
+      if (!retrieved) {
+        throw new Error('Failed to retrieve test document');
+      }
+      
+      // Nettoyer
+      await collection.deleteOne({ _id: testDoc._id });
+      
+      console.log('✅ MongoDB write/read validation successful');
+    } catch (error) {
+      throw new Error(`MongoDB write/read validation failed: ${error.message}`);
     }
   }
 

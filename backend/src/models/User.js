@@ -127,9 +127,9 @@ userSchema.methods.incrementLoginAttempts = function() {
   
   const updates = { $inc: { loginAttempts: 1 } };
   
-  // Verrouiller le compte si on atteint 5 tentatives
-  if (this.loginAttempts + 1 >= 5 && !this.isLocked) {
-    updates.$set = { lockUntil: Date.now() + 2 * 60 * 60 * 1000 }; // 2 heures
+  // Verrouiller le compte si on atteint 3 tentatives (plus strict)
+  if (this.loginAttempts + 1 >= 3 && !this.isLocked) {
+    updates.$set = { lockUntil: Date.now() + 4 * 60 * 60 * 1000 }; // 4 heures
   }
   
   return this.updateOne(updates);
@@ -143,16 +143,32 @@ userSchema.methods.resetLoginAttempts = function() {
 
 userSchema.methods.generateEmailVerificationToken = function() {
   const token = require('crypto').randomBytes(32).toString('hex');
-  this.emailVerificationToken = token;
+  const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex');
+  
+  this.emailVerificationToken = hashedToken;
   this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 heures
-  return token;
+  
+  return token; // Return unhashed token for email
+};
+
+userSchema.methods.verifyEmailVerificationToken = function(token) {
+  const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex');
+  return this.emailVerificationToken === hashedToken && this.emailVerificationExpires > Date.now();
 };
 
 userSchema.methods.generatePasswordResetToken = function() {
   const token = require('crypto').randomBytes(32).toString('hex');
-  this.passwordResetToken = token;
+  const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex');
+  
+  this.passwordResetToken = hashedToken;
   this.passwordResetExpires = Date.now() + 1 * 60 * 60 * 1000; // 1 heure
-  return token;
+  
+  return token; // Return unhashed token for email
+};
+
+userSchema.methods.verifyPasswordResetToken = function(token) {
+  const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex');
+  return this.passwordResetToken === hashedToken && this.passwordResetExpires > Date.now();
 };
 
 // Middleware pre-save

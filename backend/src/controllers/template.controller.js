@@ -1,239 +1,263 @@
 const templateService = require('../services/template.service');
 const themeCustomizerService = require('../services/theme-customizer.service');
+const BaseController = require('./BaseController');
+const Joi = require('joi');
 const structuredLogger = require('../services/structured-logger.service');
+const templateAIService = require('../services/template-ai.service');
+const cssCompilerService = require('../services/css-compiler.service');
 
-class TemplateController {
+class TemplateController extends BaseController {
+  constructor() {
+    super('Template');
+    this.templateService = templateService;
+    this.validationService = this._createValidationService();
+    this.logger = structuredLogger;
+  }
+
+  // MANDATORY METHOD 1 - SOLID: Single Responsibility
+  async getPopularTemplates(req, res) {
+    try {
+      // Input validation - MANDATORY
+      const limit = this._validatePositiveInteger(
+        req.query.limit, 
+        { min: 1, max: 100, default: 10 }
+      );
+
+      // Business logic - MANDATORY error handling
+      const templates = await this.templateService.getPopularTemplates(limit);
+      if (!templates || templates.length === 0) {
+        return this.handleError(
+          new Error('No templates found'), 
+          req, 
+          res, 
+          404
+        );
+      }
+
+      // Success response - CONSISTENT format
+      this.sendSuccess(res, {
+        data: templates,
+        count: templates.length,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      this.logger.error('getPopularTemplates failed', {
+        error: error.message,
+        stack: error.stack
+      });
+      this.handleError(error, req, res);
+    }
+  }
+
+  // MANDATORY METHOD 2 - SOLID: Single Responsibility
+  async searchTemplates(req, res) {
+    try {
+      // Validation schema - MANDATORY
+      const searchCriteria = this._validateSearchCriteria(req.query);
+      const results = await this.templateService.searchTemplates(searchCriteria);
+      
+      this.sendSuccess(res, {
+        data: results.templates,
+        pagination: results.pagination,
+        filters_applied: searchCriteria
+      });
+    } catch (error) {
+      this.logger.error('searchTemplates failed', {
+        error: error.message
+      });
+      this.handleError(error, req, res);
+    }
+  }
+
+  // MANDATORY METHOD 3 - SOLID: Single Responsibility
+  async getTemplateById(req, res) {
+    try {
+      const { id } = req.params;
+      
+      // Validation - MANDATORY
+      if (!this._isValidObjectId(id)) {
+        return this.handleError(
+          new Error('Invalid template ID format'),
+          req,
+          res,
+          400
+        );
+      }
+
+      const template = await this.templateService.getTemplateById(id);
+      if (!template) {
+        return this.handleError(
+          new Error('Template not found'),
+          req,
+          res,
+          404
+        );
+      }
+
+      this.sendSuccess(res, { data: template });
+    } catch (error) {
+      this.logger.error('getTemplateById failed', {
+        id: req.params.id,
+        error: error.message
+      });
+      this.handleError(error, req, res);
+    }
+  }
+
+  // MANDATORY METHOD 4 - SOLID: Single Responsibility
+  async createTemplate(req, res) {
+    try {
+      // Authentication check - MANDATORY
+      if (!req.user) {
+        return this.handleError(
+          new Error('Authentication required'),
+          req,
+          res,
+          401
+        );
+      }
+
+      // Input validation - MANDATORY
+      const templateData = this._validateTemplateCreation(req.body);
+
+      // Authorization - MANDATORY
+      if (!this._hasPermission(req.user, 'template:create')) {
+        return this.handleError(
+          new Error('Insufficient permissions'),
+          req,
+          res,
+          403
+        );
+      }
+
+      const createdBy = req.user.sub;
+      const template = await this.templateService.createTemplate(templateData, createdBy);
+
+      this.logger.info('Template created successfully', {
+        templateId: template.id,
+        createdBy
+      });
+
+      this.sendSuccess(res, { data: template }, 201);
+    } catch (error) {
+      this.logger.error('createTemplate failed', {
+        error: error.message
+      });
+      this.handleError(error, req, res);
+    }
+  }
+
+  // Helper methods for validation - SOLID: Single Responsibility
+  _validatePositiveInteger(value, options = {}) {
+    const { min = 1, max = 100, default: defaultValue = 10 } = options;
+    
+    if (!value) return defaultValue;
+    
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed < min || parsed > max) {
+      throw new Error(`Value must be between ${min} and ${max}`);
+    }
+    
+    return parsed;
+  }
+
+  _validateSearchCriteria(query) {
+    const schema = Joi.object({
+      q: Joi.string().max(100).optional(),
+      category: Joi.string().max(50).optional(),
+      tags: Joi.string().optional(),
+      sortBy: Joi.string().valid('name', 'createdAt', 'popularity').default('popularity'),
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+      limit: Joi.number().integer().min(1).max(50).default(10),
+      page: Joi.number().integer().min(1).default(1)
+    });
+
+    const { error, value } = schema.validate(query);
+    if (error) {
+      throw new Error(`Search validation failed: ${error.details[0].message}`);
+    }
+
+    return value;
+  }
+
+  _validateTemplateCreation(data) {
+    const schema = Joi.object({
+      name: Joi.string().trim().min(3).max(100).required(),
+      description: Joi.string().trim().min(10).max(500).required(),
+      category: Joi.string().valid('business', 'portfolio', 'blog', 'ecommerce', 'landing').required(),
+      tags: Joi.array().items(Joi.string().max(30)).max(10).optional(),
+      layout: Joi.string().max(50).optional(),
+      colorPalette: Joi.object().optional(),
+      fontPreset: Joi.string().max(50).optional(),
+      customCSS: Joi.string().max(10000).optional(),
+      isPublic: Joi.boolean().default(true)
+    });
+
+    const { error, value } = schema.validate(data);
+    if (error) {
+      throw new Error(`Template validation failed: ${error.details[0].message}`);
+    }
+
+    return value;
+  }
+
+  _isValidObjectId(id) {
+    return /^[0-9a-fA-F]{24}$/.test(id) || /^[a-zA-Z0-9_-]+$/.test(id);
+  }
+
+  _hasPermission(user, permission) {
+    // Basic permission check - can be extended
+    return user && (user.role === 'admin' || user.permissions?.includes(permission));
+  }
+
+  _createValidationService() {
+    return {
+      validatePositiveInteger: this._validatePositiveInteger.bind(this),
+      validateSearchCriteria: this._validateSearchCriteria.bind(this),
+      validateTemplateCreation: this._validateTemplateCreation.bind(this),
+      isValidObjectId: this._isValidObjectId.bind(this)
+    };
+  }
   /**
    * Récupérer tous les templates
    * GET /api/templates
    */
   async getAllTemplates(req, res) {
     try {
-      const { 
-        tags, 
-        persona, 
-        sortBy, 
-        limit, 
-        page 
-      } = req.query;
+      // Validation Joi des paramètres de requête
+      const { error, value } = Joi.object({
+        tags: Joi.string().optional(),
+        persona: Joi.string().max(100).optional(),
+        sortBy: Joi.string().valid('name', 'createdAt', 'popularity').optional(),
+        limit: Joi.number().integer().min(1).max(100).optional(),
+        page: Joi.number().integer().min(1).optional()
+      }).validate(req.query);
+      
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          code: 'VALIDATION_ERROR',
+          message: error.details[0].message
+        });
+      }
 
       const options = {
-        tags: tags ? tags.split(',') : undefined,
-        persona,
-        sortBy,
-        limit: limit ? parseInt(limit) : undefined,
-        page: page ? parseInt(page) : undefined
+        tags: value.tags ? value.tags.split(',') : undefined,
+        persona: value.persona,
+        sortBy: value.sortBy,
+        limit: value.limit ? parseInt(value.limit) : undefined,
+        page: value.page ? parseInt(value.page) : undefined
       };
 
       const templates = await templateService.getAllTemplates(options);
       
-      structuredLogger.logInfo('TEMPLATE_FETCH_ALL', { 
-        userId: req.user?.sub, 
-        count: templates.length,
-        filters: options
-      });
-
       res.json({
         success: true,
         data: templates,
         count: templates.length
       });
     } catch (error) {
-      structuredLogger.logError('TEMPLATE_FETCH_ALL_ERROR', {
-        userId: req.user?.sub,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_FETCH_ERROR',
-        message: 'Erreur lors de la récupération des templates',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-    }
-  }
-
-  /**
-   * Récupérer un template par ID
-   * GET /api/templates/:id
-   */
-  async getTemplateById(req, res) {
-    try {
-      const { id } = req.params;
-      
-      const template = await templateService.getTemplateById(id);
-      
-      structuredLogger.logInfo('TEMPLATE_FETCH_BY_ID', { 
-        userId: req.user?.sub, 
-        templateId: id 
-      });
-
-      res.json({
-        success: true,
-        data: template
-      });
-    } catch (error) {
-      structuredLogger.logError('TEMPLATE_FETCH_BY_ID_ERROR', {
-        userId: req.user?.sub,
-        templateId: req.params.id,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvé')) {
-        return res.status(404).json({
-          success: false,
-          code: 'TEMPLATE_NOT_FOUND',
-          message: 'Template non trouvé'
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_FETCH_ERROR',
-        message: 'Erreur lors de la récupération du template',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-    }
-  }
-
-  /**
-   * Récupérer les templates populaires
-   * GET /api/templates/popular
-   */
-  async getPopularTemplates(req, res) {
-    try {
-      const { limit = 10 } = req.query;
-      
-      const templates = await templateService.getPopularTemplates(parseInt(limit));
-      
-      structuredLogger.logInfo('TEMPLATE_FETCH_POPULAR', { 
-        userId: req.user?.sub, 
-        limit: parseInt(limit),
-        count: templates.length
-      });
-
-      res.json({
-        success: true,
-        data: templates,
-        count: templates.length
-      });
-    } catch (error) {
-      structuredLogger.logError('TEMPLATE_FETCH_POPULAR_ERROR', {
-        userId: req.user?.sub,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_POPULAR_ERROR',
-        message: 'Erreur lors de la récupération des templates populaires',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-    }
-  }
-
-  /**
-   * Rechercher des templates
-   * GET /api/templates/search
-   */
-  async searchTemplates(req, res) {
-    try {
-      const {
-        query,
-        tags,
-        persona,
-        layout,
-        colors,
-        sortBy,
-        limit = 20,
-        page = 1
-      } = req.query;
-
-      const searchCriteria = {
-        query,
-        tags: tags ? tags.split(',') : undefined,
-        persona,
-        layout,
-        colors: colors ? colors.split(',') : undefined,
-        sortBy,
-        limit: parseInt(limit),
-        page: parseInt(page)
-      };
-
-      const result = await templateService.searchTemplates(searchCriteria);
-      
-      structuredLogger.logInfo('TEMPLATE_SEARCH', { 
-        userId: req.user?.sub, 
-        query,
-        results: result.templates.length,
-        total: result.pagination.total
-      });
-
-      res.json({
-        success: true,
-        data: result.templates,
-        pagination: result.pagination
-      });
-    } catch (error) {
-      structuredLogger.logError('TEMPLATE_SEARCH_ERROR', {
-        userId: req.user?.sub,
-        searchCriteria: req.query,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_SEARCH_ERROR',
-        message: 'Erreur lors de la recherche de templates',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-    }
-  }
-
-  /**
-   * Créer un nouveau template
-   * POST /api/templates
-   */
-  async createTemplate(req, res) {
-    try {
-      const templateData = req.body;
-      const createdBy = req.user?.sub || 'system';
-      
-      const template = await templateService.createTemplate(templateData, createdBy);
-      
-      structuredLogger.logInfo('TEMPLATE_CREATED', { 
-        userId: req.user?.sub, 
-        templateId: template.id,
-        createdBy
-      });
-
-      res.status(201).json({
-        success: true,
-        message: 'Template créé avec succès',
-        data: template
-      });
-    } catch (error) {
-      structuredLogger.logError('TEMPLATE_CREATE_ERROR', {
-        userId: req.user?.sub,
-        templateData: req.body,
-        error: error.message
-      });
-
-      if (error.message.includes('Validation')) {
-        return res.status(400).json({
-          success: false,
-          code: 'TEMPLATE_VALIDATION_ERROR',
-          message: 'Données de template invalides',
-          error: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_CREATE_ERROR',
-        message: 'Erreur lors de la création du template',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -243,54 +267,54 @@ class TemplateController {
    */
   async updateTemplate(req, res) {
     try {
-      const { id } = req.params;
-      const updateData = req.body;
+            // Validation Joi des paramètres
+      const { error, value } = Joi.object({
+        id: Joi.string().required().min(1).max(100)
+      }).validate(req.params);
+      
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          code: 'VALIDATION_ERROR',
+          message: error.details[0].message
+        });
+      }
+      
+      const { id } = value;
+      
+      // Validation Joi du body
+      const { error: bodyError, value: bodyValue } = Joi.object({
+        name: Joi.string().min(1).max(100).optional(),
+        description: Joi.string().max(500).optional(),
+        category: Joi.string().max(50).optional(),
+        tags: Joi.array().items(Joi.string().max(50)).max(10).optional(),
+        persona: Joi.string().valid('feminine', 'masculine', 'neutral', 'urban', 'minimal').optional(),
+        layout: Joi.string().max(50).optional(),
+        colorPalette: Joi.object().optional(),
+        fontPreset: Joi.string().max(50).optional(),
+        customCSS: Joi.string().max(10000).optional()
+      }).validate(req.body);
+      
+      if (bodyError) {
+        return res.status(400).json({
+          success: false,
+          code: 'VALIDATION_ERROR',
+          message: bodyError.details[0].message
+        });
+      }
+      
+      const updateData = bodyValue;
       const updatedBy = req.user?.sub || 'system';
       
       const template = await templateService.updateTemplate(id, updateData, updatedBy);
       
-      structuredLogger.logInfo('TEMPLATE_UPDATED', { 
-        userId: req.user?.sub, 
-        templateId: id,
-        updatedBy
-      });
-
       res.json({
         success: true,
         message: 'Template mis à jour avec succès',
         data: template
       });
     } catch (error) {
-      structuredLogger.logError('TEMPLATE_UPDATE_ERROR', {
-        userId: req.user?.sub,
-        templateId: req.params.id,
-        updateData: req.body,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvé')) {
-        return res.status(404).json({
-          success: false,
-          code: 'TEMPLATE_NOT_FOUND',
-          message: 'Template non trouvé'
-        });
-      }
-
-      if (error.message.includes('Validation')) {
-        return res.status(400).json({
-          success: false,
-          code: 'TEMPLATE_VALIDATION_ERROR',
-          message: 'Données de mise à jour invalides',
-          error: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_UPDATE_ERROR',
-        message: 'Erreur lors de la mise à jour du template',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -300,43 +324,31 @@ class TemplateController {
    */
   async deleteTemplate(req, res) {
     try {
-      const { id } = req.params;
+            // Validation Joi des paramètres
+      const { error, value } = Joi.object({
+        id: Joi.string().required().min(1).max(100)
+      }).validate(req.params);
+      
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          code: 'VALIDATION_ERROR',
+          message: error.details[0].message
+        });
+      }
+      
+      const { id } = value;
       const deletedBy = req.user?.sub || 'system';
       
       const result = await templateService.deleteTemplate(id, deletedBy);
       
-      structuredLogger.logInfo('TEMPLATE_DELETED', { 
-        userId: req.user?.sub, 
-        templateId: id,
-        deletedBy
-      });
-
       res.json({
         success: true,
         message: result.message,
         data: result
       });
     } catch (error) {
-      structuredLogger.logError('TEMPLATE_DELETE_ERROR', {
-        userId: req.user?.sub,
-        templateId: req.params.id,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvé')) {
-        return res.status(404).json({
-          success: false,
-          code: 'TEMPLATE_NOT_FOUND',
-          message: 'Template non trouvé'
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_DELETE_ERROR',
-        message: 'Erreur lors de la suppression du template',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -351,38 +363,12 @@ class TemplateController {
       
       const preview = await templateService.generateTemplatePreview(id, customizations);
       
-      structuredLogger.logInfo('TEMPLATE_PREVIEW_GENERATED', { 
-        userId: req.user?.sub, 
-        templateId: id,
-        customizations: Object.keys(customizations)
-      });
-
       res.json({
         success: true,
         data: preview
       });
     } catch (error) {
-      structuredLogger.logError('TEMPLATE_PREVIEW_ERROR', {
-        userId: req.user?.sub,
-        templateId: req.params.id,
-        customizations: req.body.customizations,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvé')) {
-        return res.status(404).json({
-          success: false,
-          code: 'TEMPLATE_NOT_FOUND',
-          message: 'Template non trouvé'
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_PREVIEW_ERROR',
-        message: 'Erreur lors de la génération du preview',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -394,26 +380,12 @@ class TemplateController {
     try {
       const stats = await templateService.getTemplateStats();
       
-      structuredLogger.logInfo('TEMPLATE_STATS_FETCHED', { 
-        userId: req.user?.sub 
-      });
-
       res.json({
         success: true,
         data: stats
       });
     } catch (error) {
-      structuredLogger.logError('TEMPLATE_STATS_ERROR', {
-        userId: req.user?.sub,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_STATS_ERROR',
-        message: 'Erreur lors de la récupération des statistiques',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -436,30 +408,13 @@ class TemplateController {
 
       const results = await templateService.importTemplatesFromJSON(templates, importedBy);
       
-      structuredLogger.logInfo('TEMPLATE_IMPORT_COMPLETED', { 
-        userId: req.user?.sub, 
-        importedBy,
-        results
-      });
-
       res.json({
         success: true,
         message: 'Import des templates terminé',
         data: results
       });
     } catch (error) {
-      structuredLogger.logError('TEMPLATE_IMPORT_ERROR', {
-        userId: req.user?.sub,
-        templatesCount: req.body.templates?.length,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'TEMPLATE_IMPORT_ERROR',
-        message: 'Erreur lors de l\'import des templates',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -473,28 +428,13 @@ class TemplateController {
     try {
       const palettes = themeCustomizerService.getAvailableColorPalettes();
       
-      structuredLogger.logInfo('THEME_COLOR_PALETTES_FETCHED', { 
-        userId: req.user?.sub,
-        count: palettes.length
-      });
-
       res.json({
         success: true,
         data: palettes,
         count: palettes.length
       });
     } catch (error) {
-      structuredLogger.logError('THEME_COLOR_PALETTES_ERROR', {
-        userId: req.user?.sub,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_COLOR_PALETTES_ERROR',
-        message: 'Erreur lors de la récupération des palettes de couleurs',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -506,28 +446,13 @@ class TemplateController {
     try {
       const fonts = themeCustomizerService.getAvailableFonts();
       
-      structuredLogger.logInfo('THEME_FONTS_FETCHED', { 
-        userId: req.user?.sub,
-        count: fonts.length
-      });
-
       res.json({
         success: true,
         data: fonts,
         count: fonts.length
       });
     } catch (error) {
-      structuredLogger.logError('THEME_FONTS_ERROR', {
-        userId: req.user?.sub,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_FONTS_ERROR',
-        message: 'Erreur lors de la récupération des polices',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -539,28 +464,13 @@ class TemplateController {
     try {
       const layouts = themeCustomizerService.getAvailableLayouts();
       
-      structuredLogger.logInfo('THEME_LAYOUTS_FETCHED', { 
-        userId: req.user?.sub,
-        count: layouts.length
-      });
-
       res.json({
         success: true,
         data: layouts,
         count: layouts.length
       });
     } catch (error) {
-      structuredLogger.logError('THEME_LAYOUTS_ERROR', {
-        userId: req.user?.sub,
-        error: error.message
-      });
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_LAYOUTS_ERROR',
-        message: 'Erreur lors de la récupération des layouts',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -582,37 +492,13 @@ class TemplateController {
 
       const result = themeCustomizerService.applyColorPalette(paletteName, baseCustomizations);
       
-      structuredLogger.logInfo('THEME_COLOR_PALETTE_APPLIED', { 
-        userId: req.user?.sub,
-        paletteName
-      });
-
       res.json({
         success: true,
         message: `Palette '${paletteName}' appliquée avec succès`,
         data: result
       });
     } catch (error) {
-      structuredLogger.logError('THEME_COLOR_PALETTE_APPLY_ERROR', {
-        userId: req.user?.sub,
-        paletteName: req.body.paletteName,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvée')) {
-        return res.status(404).json({
-          success: false,
-          code: 'PALETTE_NOT_FOUND',
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_COLOR_PALETTE_APPLY_ERROR',
-        message: 'Erreur lors de l\'application de la palette',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -634,37 +520,13 @@ class TemplateController {
 
       const result = themeCustomizerService.applyFontPreset(fontName, baseCustomizations);
       
-      structuredLogger.logInfo('THEME_FONT_APPLIED', { 
-        userId: req.user?.sub,
-        fontName
-      });
-
       res.json({
         success: true,
         message: `Police '${fontName}' appliquée avec succès`,
         data: result
       });
     } catch (error) {
-      structuredLogger.logError('THEME_FONT_APPLY_ERROR', {
-        userId: req.user?.sub,
-        fontName: req.body.fontName,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvée')) {
-        return res.status(404).json({
-          success: false,
-          code: 'FONT_NOT_FOUND',
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_FONT_APPLY_ERROR',
-        message: 'Erreur lors de l\'application de la police',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -686,37 +548,13 @@ class TemplateController {
 
       const result = themeCustomizerService.applyLayoutPreset(presetName, baseCustomizations);
       
-      structuredLogger.logInfo('THEME_LAYOUT_APPLIED', { 
-        userId: req.user?.sub,
-        presetName
-      });
-
       res.json({
         success: true,
         message: `Layout '${presetName}' appliqué avec succès`,
         data: result
       });
     } catch (error) {
-      structuredLogger.logError('THEME_LAYOUT_APPLY_ERROR', {
-        userId: req.user?.sub,
-        presetName: req.body.presetName,
-        error: error.message
-      });
-
-      if (error.message.includes('non trouvé')) {
-        return res.status(404).json({
-          success: false,
-          code: 'LAYOUT_NOT_FOUND',
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_LAYOUT_APPLY_ERROR',
-        message: 'Erreur lors de l\'application du layout',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -747,42 +585,12 @@ class TemplateController {
 
       const css = themeCustomizerService.generateCustomCSS(customizations, template);
       
-      structuredLogger.logInfo('THEME_CSS_GENERATED', { 
-        userId: req.user?.sub,
-        templateId,
-        customizations: Object.keys(customizations)
-      });
-
       res.json({
         success: true,
-        data: {
-          css,
-          customizations: themeCustomizerService.validateCustomizations(customizations)
-        }
+        data: { css, template: template ? template.id : null }
       });
     } catch (error) {
-      structuredLogger.logError('THEME_CSS_GENERATION_ERROR', {
-        userId: req.user?.sub,
-        customizations: req.body.customizations,
-        templateId: req.body.templateId,
-        error: error.message
-      });
-
-      if (error.message.includes('Validation')) {
-        return res.status(400).json({
-          success: false,
-          code: 'THEME_VALIDATION_ERROR',
-          message: 'Customisations invalides',
-          error: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        code: 'THEME_CSS_GENERATION_ERROR',
-        message: 'Erreur lors de la génération du CSS',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      this.handleError(error, req, res);
     }
   }
 
@@ -811,46 +619,118 @@ class TemplateController {
         }
       }
 
-      const html = themeCustomizerService.generatePreviewHTML(customizations, template);
-      const css = themeCustomizerService.generateCustomCSS(customizations, template);
+      const preview = themeCustomizerService.generateThemePreview(customizations, template);
       
-      structuredLogger.logInfo('THEME_PREVIEW_GENERATED', { 
-        userId: req.user?.sub,
-        templateId,
-        customizations: Object.keys(customizations)
-      });
-
       res.json({
         success: true,
-        data: {
-          html,
-          css,
-          customizations: themeCustomizerService.validateCustomizations(customizations)
-        }
+        data: { preview, template: template ? template.id : null }
       });
     } catch (error) {
-      structuredLogger.logError('THEME_PREVIEW_GENERATION_ERROR', {
-        userId: req.user?.sub,
-        customizations: req.body.customizations,
-        templateId: req.body.templateId,
-        error: error.message
-      });
+      this.handleError(error, req, res);
+    }
+  }
 
-      if (error.message.includes('Validation')) {
-        return res.status(400).json({
-          success: false,
-          code: 'THEME_VALIDATION_ERROR',
-          message: 'Customisations invalides',
-          error: error.message
-        });
+  /**
+   * Recommandations IA pour templates
+   * GET /api/templates/ai-suggestions
+   */
+  async getAISuggestions(req, res) {
+    try {
+      const { error, value } = Joi.object({
+        name: Joi.string().optional(),
+        sector: Joi.string().optional(),
+        target: Joi.string().optional(),
+        style: Joi.string().optional()
+      }).validate(req.query);
+      if (error) {
+        return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: error.details[0].message });
       }
+      const analysis = await templateAIService.analyzeShopContent(value || {});
+      const palette = await templateAIService.generateColorPalette(analysis.sector, analysis.target);
+      return res.json({ success: true, data: { analysis, palette } });
+    } catch (error) {
+      this.handleError(error, req, res);
+    }
+  }
 
-      res.status(500).json({
-        success: false,
-        code: 'THEME_PREVIEW_GENERATION_ERROR',
-        message: 'Erreur lors de la génération du preview',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+  /**
+   * Génération preview temps réel via AI + CSS compiler
+   * POST /api/templates/preview
+   */
+  async previewWithAI(req, res) {
+    try {
+      const { error, value } = Joi.object({
+        template: Joi.object().default({}),
+        customization: Joi.object().default({}),
+        usedSelectors: Joi.array().items(Joi.string()).default([])
+      }).validate(req.body);
+      if (error) {
+        return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: error.details[0].message });
+      }
+      const compiled = await templateAIService.compileDynamicCSS(value.template, value.customization);
+      const critical = await cssCompilerService.extractCritical(compiled.css);
+      const purged = await cssCompilerService.purgeUnused(compiled.css, value.usedSelectors);
+      return res.json({ success: true, data: { css: purged, critical, meta: compiled.meta } });
+    } catch (error) {
+      this.handleError(error, req, res);
+    }
+  }
+
+  /**
+   * Créer un test A/B (3 variations)
+   * POST /api/templates/ab-test
+   */
+  async createABTest(req, res) {
+    try {
+      const { error, value } = Joi.object({
+        baseTemplate: Joi.object().default({})
+      }).validate(req.body);
+      if (error) {
+        return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: error.details[0].message });
+      }
+      const variants = await templateAIService.createABTestVariations(value.baseTemplate);
+      return res.status(201).json({ success: true, data: variants });
+    } catch (error) {
+      this.handleError(error, req, res);
+    }
+  }
+
+  /**
+   * Analytics de performance d'un template
+   * GET /api/templates/analytics
+   */
+  async getAIAnalytics(req, res) {
+    try {
+      const { error, value } = Joi.object({
+        templateId: Joi.string().required()
+      }).validate(req.query);
+      if (error) {
+        return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: error.details[0].message });
+      }
+      const analytics = templateAIService.getTemplateAnalytics(value.templateId);
+      return res.json({ success: true, data: analytics });
+    } catch (error) {
+      this.handleError(error, req, res);
+    }
+  }
+
+  /**
+   * Optimisation automatique guidée par IA
+   * PUT /api/templates/optimize
+   */
+  async optimizeTemplate(req, res) {
+    try {
+      const { error, value } = Joi.object({
+        template: Joi.object().required(),
+        performance: Joi.object().default({})
+      }).validate(req.body);
+      if (error) {
+        return res.status(400).json({ success: false, code: 'VALIDATION_ERROR', message: error.details[0].message });
+      }
+      const result = await templateAIService.optimizeTemplate(value.template, value.performance);
+      return res.json({ success: true, data: result });
+    } catch (error) {
+      this.handleError(error, req, res);
     }
   }
 }

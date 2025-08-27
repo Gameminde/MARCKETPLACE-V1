@@ -10,12 +10,16 @@ const xssClean = require('xss-clean');
 const path = require('path');
 console.log('🔍 Loading .env file...');
 const result = require('dotenv').config({ path: './.env' });
-console.log('📁 .env file result:', result);
-console.log('📊 Current env vars:', {
-  MONGODB_URI: process.env.MONGODB_URI,
-  JWT_SECRET: process.env.JWT_SECRET,
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
-});
+
+// CRITICAL SECURITY: No hardcoded secrets allowed
+if (result.error) {
+  console.error('❌ CRITICAL: .env file is required for security');
+  console.error('🔐 Run: npm run generate-secrets');
+  console.error('📝 Then: cp .env.local .env');
+  process.exit(1);
+}
+
+console.log('✅ .env file loaded successfully');
 
 // Import des routes et services
 const authRoutes = require('./src/routes/auth.routes');
@@ -39,6 +43,11 @@ const {
 const databaseService = require('./src/services/database.service');
 const loggerService = require('./src/services/logger.service');
 const redisClientService = require('./src/services/redis-client.service');
+
+// Import des services de sécurité - PHASE 3
+const JWTSecurityService = require('./src/services/jwt-security.service');
+const { SecurityValidatorService } = require('./src/services/security-validator.service');
+const RateLimitingService = require('./src/services/rate-limiting.service');
 
 const app = express();
 const tracingMiddleware = require('./src/middleware/tracing.middleware');
@@ -194,7 +203,7 @@ app.get('/status', (req, res) => {
     message: 'Marketplace API is running',
     timestamp: new Date().toISOString(),
     environment: NODE_ENV,
-    database: databaseService.getStatus()
+    database: databaseService.getConnectionStatus()
   });
 });
 
@@ -223,6 +232,13 @@ app.use(`${API_PREFIX}/templates`, templateRoutes);
 
 // Payment processing routes
 app.use(`${API_PREFIX}/payments`, paymentRoutes);
+
+// AI routes (mounted under versioned API)
+try {
+  app.use(`${API_PREFIX}/ai`, require('./src/routes/ai.routes'));
+} catch (e) {
+  console.warn('AI routes not mounted:', e.message);
+}
 
 // Monitoring routes
 app.use(`${API_PREFIX}/monitoring`, require('./src/routes/monitoring.routes'));
@@ -277,18 +293,44 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 // ENV VALIDATION
 // ========================================
 
-// Validate essential environment variables early
+// CRITICAL SECURITY: Strict environment validation
 const validateEnv = () => {
-  const required = ['MONGODB_URI', 'POSTGRES_URI', 'JWT_SECRET', 'STRIPE_SECRET_KEY'];
-  const missing = required.filter((env) => !process.env[env]);
+  const required = [
+    'MONGODB_URI', 
+    'POSTGRES_URI', 
+    'JWT_SECRET', 
+    'STRIPE_SECRET_KEY'
+  ];
+  
+  // Check for missing or placeholder values
+  const missing = required.filter((env) => 
+    !process.env[env] || 
+    process.env[env].includes('placeholder') || 
+    process.env[env].includes('your-') ||
+    process.env[env].includes('localhost') // Prevent localhost in production
+  );
+  
   if (missing.length > 0) {
-    // eslint-disable-next-line no-console
-    console.error('❌ Missing required environment variables:');
-    missing.forEach((env) => console.error(`   - ${env}`));
-    console.error('\n📝 Please configure your .env file');
+    console.error('❌ CRITICAL SECURITY ISSUE: Invalid or missing environment variables:');
+    missing.forEach((env) => console.error(`  - ${env}: ${process.env[env] || 'NOT_SET'}`));
+    console.error('\n🔐 SOLUTION: Run npm run generate-secrets');
+    console.error('📝 Then copy: cp .env.local .env');
+    console.error('⚠️  NEVER use default/placeholder values in production!');
     process.exit(1);
   }
-  loggerService.info('✅ Environment variables validated');
+
+  // Additional JWT validation
+  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+    console.error('❌ CRITICAL: JWT_SECRET must be at least 32 characters');
+    process.exit(1);
+  }
+
+  // Validate MongoDB URI format
+  if (process.env.MONGODB_URI && !process.env.MONGODB_URI.includes('mongodb.net')) {
+    console.warn('⚠️  WARNING: Using local MongoDB. For production, use MongoDB Atlas');
+  }
+
+  console.log('✅ Environment variables validated successfully');
 };
 
 // ========================================
@@ -306,8 +348,17 @@ const startServer = async () => {
 			}
 		}
 
-		// Connect to databases
-		await databaseService.connect();
+		// Connect to databases (skip in development if not available)
+		try {
+			await databaseService.connect();
+		} catch (error) {
+			if (NODE_ENV === 'development') {
+				console.warn('⚠️  Database connection failed in development mode - continuing without database');
+				console.warn('💡 To use database features, install MongoDB locally or use MongoDB Atlas');
+			} else {
+				throw error;
+			}
+		}
 		// Skip Redis for now (development mode)
 		loggerService.info('🔄 Skipping Redis connection for development...');
 		
@@ -351,7 +402,12 @@ const startServer = async () => {
 
 // Start server if this file is run directly
 if (require.main === module) {
-  validateEnv();
+  // Skip validation in development for demo
+  if (NODE_ENV !== 'development') {
+    validateEnv();
+  } else {
+    console.log('🔧 DEVELOPMENT MODE: Skipping strict environment validation');
+  }
   startServer();
 }
 

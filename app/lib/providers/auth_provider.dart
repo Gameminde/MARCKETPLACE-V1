@@ -1,124 +1,265 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../models/user.dart';
+import '../services/auth_service.dart';
+import '../services/secure_storage_service.dart';
 import '../services/api_service.dart';
-import 'package:dio/dio.dart';
 
-class User {
-  final String id;
-  final String email;
-  const User({required this.id, required this.email});
-}
-
+/// Authentication provider following SOLID principles
+/// Single Responsibility: Manages authentication state only
 class AuthProvider extends ChangeNotifier {
+  // Private state variables
   bool _isAuthenticated = false;
-  bool get isAuthenticated => _isAuthenticated;
   bool _isLoading = false;
-  bool get isLoading => _isLoading;
   String? _error;
-  String? get error => _error;
-  User? _currentUser;
-  User? get currentUser => _currentUser;
+  User? _user;
   String? _token;
+  String? _refreshToken;
 
-  final _storage = const FlutterSecureStorage();
-  final _api = ApiService();
+  // Services (Dependency Injection)
+  final AuthService _authService;
+  final SecureStorageService _storageService;
+  final ApiService _apiService;
 
-  Future<bool> register(String email, String password) async {
-    _isLoading = true; _error = null; notifyListeners();
+  // Public getters
+  bool get isAuthenticated => _isAuthenticated;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  User? get user => _user;
+  String? get token => _token;
+
+  // Constructor with dependency injection
+  AuthProvider({
+    AuthService? authService,
+    SecureStorageService? storageService,
+    ApiService? apiService,
+  }) : _authService = authService ?? AuthService(),
+        _storageService = storageService ?? SecureStorageService(),
+        _apiService = apiService ?? ApiService();
+
+  /// Register new user with comprehensive validation
+  Future<bool> register({
+    required String firstName,
+    required String lastName,
+    required String username,
+    required String email,
+    required String password,
+  }) async {
+    await _setLoading(true);
+
     try {
-      final res = await _api.client.post('/auth/register', data: {
-        'email': email,
-        'password': password,
-      });
-      final data = res.data['data'];
-      _token = data['accessToken'];
-      await _storage.write(key: 'accessToken', value: _token);
-      _api.setToken(_token);
-      _currentUser = User(id: data['user']['id'], email: data['user']['email']);
-      _isAuthenticated = true;
-      return true;
-    } catch (e) {
-      _error = 'Registration failed';
-      return false;
-    } finally {
-      _isLoading = false; notifyListeners();
-    }
-  }
+      final result = await _authService.register(
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        email: email,
+        password: password,
+      );
 
-  Future<bool> login(String email, String password) async {
-    _isLoading = true; _error = null; notifyListeners();
-    try {
-      final res = await _api.client.post('/auth/login', data: {
-        'email': email,
-        'password': password,
-      });
-      final data = res.data['data'];
-      _token = data['accessToken'];
-      await _storage.write(key: 'accessToken', value: _token);
-      _api.setToken(_token);
-      _currentUser = User(id: data['user']['id'], email: data['user']['email']);
-      _isAuthenticated = true;
-      return true;
-    } catch (e) {
-      if (e is DioException) {
-        final code = e.response?.data is Map ? e.response?.data['code'] as String? : null;
-        _error = _getLocalizedError(code) ?? 'Erreur de connexion';
+      if (result.isSuccess) {
+        await _handleAuthSuccess(result.user!, result.tokens);
+        return true;
       } else {
-        _error = 'Erreur de connexion';
+        _setError(result.error!);
+        return false;
       }
+    } catch (e) {
+      _setError('Registration failed: ${e.toString()}');
       return false;
     } finally {
-      _isLoading = false; notifyListeners();
+      await _setLoading(false);
     }
   }
 
-  Future<void> logout() async {
+  /// Login user with validation
+  Future<bool> login(String email, String password) async {
+    await _setLoading(true);
+
     try {
-      await _api.client.post('/auth/logout');
-    } catch (_) {}
-    _isAuthenticated = false;
-    _currentUser = null;
-    _token = null;
-    await _storage.delete(key: 'accessToken');
-    _api.setToken(null);
+      final result = await _authService.login(email, password);
+
+      if (result.isSuccess) {
+        await _handleAuthSuccess(result.user!, result.tokens);
+        return true;
+      } else {
+        _setError(result.error!);
+        return false;
+      }
+    } catch (e) {
+      _setError('Login failed: ${e.toString()}');
+      return false;
+    } finally {
+      await _setLoading(false);
+    }
+  }
+
+  /// Logout user and clear all data
+  Future<void> logout() async {
+    await _setLoading(true);
+
+    try {
+      // Logout from server
+      await _authService.logout(_token);
+      
+      // Clear local state and storage
+      await _clearAuthState();
+    } catch (e) {
+      debugPrint('Logout error: $e');
+      // Always clear local state even if server logout fails
+      await _clearAuthState();
+    } finally {
+      await _setLoading(false);
+    }
+  }
+
+  /// Check authentication status on app start
+  Future<bool> checkAuthStatus() async {
+    await _setLoading(true);
+
+    try {
+      // Check if we have stored credentials
+      final isStored = await _storageService.isAuthenticated();
+      if (!isStored) return false;
+
+      // Get stored token and user data
+      final storedToken = await _storageService.getAuthToken();
+      final storedUserData = await _storageService.getUserData();
+
+      if (storedToken != null && storedUserData != null) {
+        // Restore user from storage
+        _user = User.fromJson(storedUserData);
+        _token = storedToken;
+        _apiService.setToken(_token);
+        _isAuthenticated = true;
+
+        // Verify token with server
+        final result = await _authService.verifySession(storedToken);
+        if (result.isSuccess) {
+          // Update user data if server returned newer data
+          if (result.user != null) {
+            _user = result.user;
+            await _storageService.storeUserData(_user!.toJson());
+          }
+          return true;
+        } else {
+          // Token is invalid, clear stored data
+          await _clearAuthState();
+          return false;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      debugPrint('Auth status check failed: $e');
+      await _clearAuthState();
+      return false;
+    } finally {
+      await _setLoading(false);
+    }
+  }
+
+  /// Refresh authentication tokens
+  Future<bool> refreshAuthToken() async {
+    if (_refreshToken == null) return false;
+
+    try {
+      final result = await _authService.refreshTokens(_refreshToken!);
+      
+      if (result.isSuccess) {
+        await _handleAuthSuccess(result.user!, result.tokens);
+        return true;
+      } else {
+        // Refresh failed, logout user
+        await logout();
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Token refresh failed: $e');
+      await logout();
+      return false;
+    }
+  }
+
+  /// Update user profile
+  Future<bool> updateProfile(Map<String, dynamic> profileData) async {
+    if (!_isAuthenticated) return false;
+
+    await _setLoading(true);
+
+    try {
+      final response = await _apiService.client.put('/auth/profile', data: profileData);
+
+      if (response.data['success'] == true) {
+        _user = User.fromJson(response.data['data']);
+        await _storageService.storeUserData(_user!.toJson());
+        notifyListeners();
+        return true;
+      } else {
+        _setError('Failed to update profile');
+        return false;
+      }
+    } catch (e) {
+      _setError('Profile update failed: ${e.toString()}');
+      return false;
+    } finally {
+      await _setLoading(false);
+    }
+  }
+
+  /// Clear error state
+  void clearError() {
+    _error = null;
     notifyListeners();
   }
 
-  Future<bool> checkAuthStatus() async {
-    _isLoading = true; notifyListeners();
-    try {
-      final stored = await _storage.read(key: 'accessToken');
-      if (stored != null) {
-        _token = stored; _api.setToken(_token);
-        // Optionally ping /auth/me
-        final res = await _api.client.get('/auth/me');
-        final data = res.data['data'];
-        _currentUser = User(id: data['_id'] ?? data['id'] ?? '', email: data['email']);
-        _isAuthenticated = true;
-        return true;
+  // Private helper methods
+  Future<void> _handleAuthSuccess(User user, AuthTokens? tokens) async {
+    _user = user;
+    _isAuthenticated = true;
+    _error = null;
+
+    if (tokens != null) {
+      _token = tokens.accessToken;
+      _refreshToken = tokens.refreshToken;
+
+      // Store tokens securely
+      await _storageService.storeAuthToken(tokens.accessToken);
+      if (tokens.refreshToken != null) {
+        await _storageService.storeRefreshToken(tokens.refreshToken!);
       }
-      return false;
-    } catch (_) {
-      return false;
-    } finally {
-      _isLoading = false; notifyListeners();
     }
+
+    // Store user data
+    await _storageService.storeUserData(user.toJson());
+    
+    // Set API token
+    _apiService.setToken(_token);
+    
+    notifyListeners();
   }
 
-  String? _getLocalizedError(String? code) {
-    switch (code) {
-      case 'INVALID_CREDENTIALS':
-        return 'Email ou mot de passe incorrect';
-      case 'EMAIL_EXISTS':
-        return 'Cet email est déjà utilisé';
-      case 'WEAK_PASSWORD':
-        return 'Mot de passe trop faible';
-      case 'TOKEN_REVOKED':
-        return 'Session expirée';
-      default:
-        return null;
-    }
+  Future<void> _clearAuthState() async {
+    _isAuthenticated = false;
+    _user = null;
+    _token = null;
+    _refreshToken = null;
+    _error = null;
+
+    // Clear secure storage
+    await _storageService.clearAuthData();
+    
+    // Clear API token
+    _apiService.setToken(null);
+    
+    notifyListeners();
+  }
+
+  Future<void> _setLoading(bool loading) async {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _error = error;
+    notifyListeners();
   }
 }
-
-

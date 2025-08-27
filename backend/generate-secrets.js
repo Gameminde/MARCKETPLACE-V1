@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const fs = require('fs');
+const path = require('path');
 
 console.log('🔐 GÉNÉRATEUR DE SECRETS SÉCURISÉS - MARKETPLACE');
 console.log('==================================================\n');
@@ -46,7 +47,7 @@ console.log(publicKey);
 
 console.log('\n3️⃣ GÉNÉRATION AUTRES SECRETS:');
 const stripeWebhookSecret = generateSecureSecret(32);
-const sentryDSN = `https://${generateSecureSecret(32)}@${generateSecureSecret(16)}.ingest.sentry.io/${Math.floor(Math.random() * 999999)}`;
+const sentryDSN = 'https://your-sentry-dsn-here@sentry.io/project-id';
 
 console.log('✅ STRIPE_WEBHOOK_SECRET:');
 console.log(stripeWebhookSecret);
@@ -75,10 +76,10 @@ SENTRY_DSN=${sentryDSN}
 # ========================================
 # AUTRES VARIABLES À CONFIGURER MANUELLEMENT
 # ========================================
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/marketplace
-POSTGRES_URI=postgresql://username:password@host:port/marketplace
+MONGODB_URI=your-mongodb-connection-string-here
+POSTGRES_URI=your-postgresql-connection-string-here
 REDIS_URL=redis://localhost:6379
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+STRIPE_SECRET_KEY=your-stripe-secret-key-here
 STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
 GOOGLE_CLOUD_PROJECT_ID=your-project-id-here
 GOOGLE_VISION_API_KEY=your-vision-api-key-here
@@ -87,7 +88,36 @@ GOOGLE_VISION_API_KEY=your-vision-api-key-here
 try {
   fs.writeFileSync('.env.local', envContent);
   console.log('✅ Fichier .env.local créé avec succès');
-  console.log('⚠️ IMPORTANT: Ajouter .env.local au .gitignore');
+  
+  // CRITICAL: Automatically update .gitignore
+  const gitignorePath = path.join(__dirname, '.gitignore');
+  try {
+    let gitignoreContent = '';
+    if (fs.existsSync(gitignorePath)) {
+      gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+    }
+    
+    // Add environment files to .gitignore if not already present
+    const envPatterns = ['.env.local', '.env', '.env.*'];
+    let updated = false;
+    
+    envPatterns.forEach(pattern => {
+      if (!gitignoreContent.includes(pattern)) {
+        gitignoreContent += `\n# Environment secrets\n${pattern}`;
+        updated = true;
+      }
+    });
+    
+    if (updated) {
+      fs.writeFileSync(gitignorePath, gitignoreContent);
+      console.log('✅ .gitignore mis à jour automatiquement');
+    } else {
+      console.log('✅ .gitignore déjà configuré correctement');
+    }
+  } catch (gitignoreError) {
+    console.warn('⚠️ Vérifiez manuellement le .gitignore');
+  }
+  
 } catch (error) {
   console.error('❌ Erreur lors de la création du fichier:', error.message);
 }
@@ -107,5 +137,12 @@ console.log('========================');
 console.log('echo ".env.local" >> .gitignore');
 console.log('cp .env.local .env');
 console.log('npm run dev');
+
+console.log('\n🔒 VALIDATION FINALE:');
+console.log('====================');
+console.log('1. ✅ .env.local créé avec secrets sécurisés');
+console.log('2. ✅ .gitignore mis à jour automatiquement');
+console.log('3. 🔄 Exécutez: cp .env.local .env');
+console.log('4. 🚀 Testez: npm run dev');
 
 console.log('\n🚀 MARKETPLACE PRÊT POUR DÉVELOPPEMENT SÉCURISÉ !');

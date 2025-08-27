@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { blacklistToken } = require('../services/redis.service');
+const tokenBlacklist = require('../services/token-blacklist.service');
 
 class AuthMiddleware {
   constructor() {
@@ -14,7 +14,7 @@ class AuthMiddleware {
       }
 
       // Vérifier si le token est blacklisté
-      const isBlacklisted = await blacklistToken.isBlacklisted(token);
+      const isBlacklisted = await tokenBlacklist.isTokenBlacklisted(token);
       if (isBlacklisted) {
         throw new Error('Token blacklisted');
       }

@@ -132,3 +132,21 @@ test-*.js
 *.backup
 *.old
 
+
+# Environment secrets
+.env.*
+# Environment secrets - CRITICAL SECURITY
+!.env.example
+# Google Cloud credentials - CRITICAL SECURITY
+!package.json
+!package-lock.json
+!**/templates.json
+# API Keys and secrets
+secrets/
+credentials/
+*.key
+*.pem
+*.p12
+*.pfx
+# Backup files that might contain secrets
+*.tmp
