@@ -5,6 +5,7 @@
 // ========================================
 
 const structuredLogger = require('./structured-logger.service');
+const googleVisionService = require('./google-vision.service');
 const axios = require('axios');
 
 class AIValidationV2Service {
@@ -122,40 +123,93 @@ class AIValidationV2Service {
     }
 
     try {
-      const imagePromises = images.map(async (image, index) => {
-        // Mock Google Vision API pour développement
-        // En production : intégration réelle avec quota gratuit 1000 req/mois
-        const mockAnalysis = await this.mockImageAnalysis(image, index);
-        return mockAnalysis;
-      });
+      // Use real Google Vision API if available, fallback to mock
+      const visionStatus = googleVisionService.getServiceStatus();
+      
+      if (visionStatus.enabled && visionStatus.quotaRemaining > 0) {
+        // Real Google Vision API analysis
+        const visionResults = await googleVisionService.analyzeImages(images, { concurrency: 3 });
+        
+        // Transform Vision API results to our format
+        const imageResults = visionResults.results.map((result, index) => ({
+          quality: result.quality,
+          objects: result.objects.map(obj => obj.name),
+          moderation: result.moderation,
+          ocr: result.text,
+          brands: result.brands.map(brand => brand.description),
+          recommendations: this.generateImageRecommendationsFromVision(result)
+        }));
+        
+        // Aggregate results
+        const aggregateQuality = imageResults.reduce((sum, img) => sum + img.quality, 0) / imageResults.length;
+        const allObjects = imageResults.flatMap(img => img.objects);
+        const allBrands = imageResults.flatMap(img => img.brands);
+        const allOcr = imageResults.map(img => img.ocr).join(' ');
+        
+        // Moderation check
+        const moderationIssues = imageResults.flatMap(img => img.moderation.issues);
+        const isSafe = moderationIssues.length === 0;
 
-      const imageResults = await Promise.all(imagePromises);
-      
-      // Aggregate results
-      const aggregateQuality = imageResults.reduce((sum, img) => sum + img.quality, 0) / imageResults.length;
-      const allObjects = imageResults.flatMap(img => img.objects);
-      const allBrands = imageResults.flatMap(img => img.brands);
-      const allOcr = imageResults.map(img => img.ocr).join(' ');
-      
-      // Moderation check
-      const moderationIssues = imageResults.flatMap(img => img.moderation.issues);
-      const isSafe = moderationIssues.length === 0;
+        const processingTime = Date.now() - startTime;
+        
+        return {
+          quality: Math.round(aggregateQuality),
+          objects: this.deduplicateObjects(allObjects),
+          moderation: { safe: isSafe, issues: moderationIssues },
+          ocr: allOcr,
+          brands: this.deduplicateBrands(allBrands),
+          processingTime,
+          recommendations: this.generateImageRecommendations(imageResults),
+          details: imageResults,
+          source: 'google_vision',
+          quotaUsed: visionStatus.quotaUsed
+        };
+      } else {
+        // Fallback to mock analysis
+        structuredLogger.logInfo('AI_VALIDATION_FALLBACK_VISION', {
+          reason: visionStatus.enabled ? 'quota_exceeded' : 'service_disabled',
+          quotaUsed: visionStatus.quotaUsed,
+          quotaLimit: visionStatus.quotaLimit
+        });
+        
+        const imagePromises = images.map(async (image, index) => {
+          const mockAnalysis = await this.mockImageAnalysis(image, index);
+          return mockAnalysis;
+        });
 
-      const processingTime = Date.now() - startTime;
-      
-      return {
-        quality: Math.round(aggregateQuality),
-        objects: this.deduplicateObjects(allObjects),
-        moderation: { safe: isSafe, issues: moderationIssues },
-        ocr: allOcr,
-        brands: this.deduplicateBrands(allBrands),
-        processingTime,
-        recommendations: this.generateImageRecommendations(imageResults),
-        details: imageResults
-      };
+        const imageResults = await Promise.all(imagePromises);
+        
+        // Aggregate results
+        const aggregateQuality = imageResults.reduce((sum, img) => sum + img.quality, 0) / imageResults.length;
+        const allObjects = imageResults.flatMap(img => img.objects);
+        const allBrands = imageResults.flatMap(img => img.brands);
+        const allOcr = imageResults.map(img => img.ocr).join(' ');
+        
+        // Moderation check
+        const moderationIssues = imageResults.flatMap(img => img.moderation.issues);
+        const isSafe = moderationIssues.length === 0;
+
+        const processingTime = Date.now() - startTime;
+        
+        return {
+          quality: Math.round(aggregateQuality),
+          objects: this.deduplicateObjects(allObjects),
+          moderation: { safe: isSafe, issues: moderationIssues },
+          ocr: allOcr,
+          brands: this.deduplicateBrands(allBrands),
+          processingTime,
+          recommendations: this.generateImageRecommendations(imageResults),
+          details: imageResults,
+          source: 'fallback_mock'
+        };
+      }
 
     } catch (error) {
-      structuredLogger.logError(error, { context: 'IMAGE_ANALYSIS' });
+      structuredLogger.logError('AI_VALIDATION_IMAGE_ERROR', {
+        error: error.message,
+        context: 'IMAGE_ANALYSIS'
+      });
+      
       return {
         quality: 0,
         objects: [],
@@ -164,7 +218,8 @@ class AIValidationV2Service {
         brands: [],
         processingTime: Date.now() - startTime,
         error: error.message,
-        recommendations: ['Erreur analyse images - validation manuelle recommandée']
+        recommendations: ['Erreur analyse images - validation manuelle recommandée'],
+        source: 'error_fallback'
       };
     }
   }
@@ -460,6 +515,28 @@ class AIValidationV2Service {
     
     if (imageResults.length < 3) {
       recommendations.push('Ajouter plus d\'images (minimum 3 recommandé)');
+    }
+    
+    return recommendations;
+  }
+
+  generateImageRecommendationsFromVision(visionResult) {
+    const recommendations = [];
+    
+    if (visionResult.quality < 70) {
+      recommendations.push('Améliorer la qualité de l\'image');
+    }
+    
+    if (!visionResult.moderation.safe) {
+      recommendations.push('Contenu inapproprié détecté - révision nécessaire');
+    }
+    
+    if (visionResult.objects.length === 0) {
+      recommendations.push('Aucun objet détecté - vérifier la clarté de l\'image');
+    }
+    
+    if (visionResult.colors.length < 3) {
+      recommendations.push('Image peu colorée - considérer un meilleur éclairage');
     }
     
     return recommendations;

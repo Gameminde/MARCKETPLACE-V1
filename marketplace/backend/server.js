@@ -27,6 +27,7 @@ const shopRoutes = require('./src/routes/shop.routes');
 const productRoutes = require('./src/routes/product.routes');
 const templateRoutes = require('./src/routes/template.routes');
 const paymentRoutes = require('./src/routes/payment.routes');
+const cartRoutes = require('./src/routes/cart.routes');
 const userRoutes = require('./src/routes/user.routes');
 
 // Import des middlewares
@@ -51,7 +52,7 @@ const RateLimitingService = require('./src/services/rate-limiting.service');
 
 const app = express();
 const tracingMiddleware = require('./src/middleware/tracing.middleware');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 let server; // global server reference for graceful shutdown
 
@@ -233,6 +234,20 @@ app.use(`${API_PREFIX}/templates`, templateRoutes);
 // Payment processing routes
 app.use(`${API_PREFIX}/payments`, paymentRoutes);
 
+// Shopping cart routes
+app.use(`${API_PREFIX}/cart`, cartRoutes);
+
+// XP System routes (Gamification)
+app.use(`${API_PREFIX}/xp`, require('./src/routes/xp.routes'));
+
+// Search routes
+app.use(`${API_PREFIX}/search`, require('./src/routes/search.routes'));
+
+// Trust & Engagement routes
+app.use(`${API_PREFIX}/reviews`, require('./src/routes/review.routes'));
+app.use(`${API_PREFIX}/messaging`, require('./src/routes/messaging.routes'));
+app.use(`${API_PREFIX}/disputes`, require('./src/routes/dispute.routes'));
+
 // AI routes (mounted under versioned API)
 try {
   app.use(`${API_PREFIX}/ai`, require('./src/routes/ai.routes'));
@@ -269,25 +284,51 @@ setupGlobalHandlers();
 // GRACEFUL SHUTDOWN
 // ========================================
 
-const gracefulShutdown = (signal) => {
+let isShuttingDown = false;
+
+const gracefulShutdown = async (signal) => {
+	if (isShuttingDown) {
+		loggerService.info(`${signal} received but shutdown already in progress`);
+		return;
+	}
+	
+	isShuttingDown = true;
 	loggerService.info(`${signal} received, shutting down gracefully`);
+	
 	if (server) {
 		server.close(async () => {
 			loggerService.info('HTTP server closed');
-			if (typeof databaseService.disconnect === 'function') {
-				await databaseService.disconnect();
+			try {
+				if (typeof databaseService.disconnect === 'function') {
+					await databaseService.disconnect();
+				}
+			} catch (error) {
+				loggerService.error('Error disconnecting database:', error);
 			}
-			try { await redisClientService.disconnect(); } catch (_) {}
+			
+			try {
+				await redisClientService.disconnect();
+			} catch (error) {
+				// Redis disconnect errors are not critical
+			}
+			
 			loggerService.info('Process terminated');
 			process.exit(0);
 		});
+		
+		// Force exit after 10 seconds if graceful shutdown fails
+		setTimeout(() => {
+			loggerService.error('Forced shutdown after timeout');
+			process.exit(1);
+		}, 10000);
 	} else {
 		process.exit(0);
 	}
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+// Register shutdown handlers only once
+process.once('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.once('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // ========================================
 // ENV VALIDATION

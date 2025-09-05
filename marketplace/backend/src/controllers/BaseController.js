@@ -64,6 +64,14 @@ class BaseController {
     }
     return value;
   }
+
+  sendSuccess(res, data, statusCode = 200) {
+    res.status(statusCode).json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      ...data
+    });
+  }
 }
 
 module.exports = BaseController;
