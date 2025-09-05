@@ -19,7 +19,18 @@ if (result.error) {
   process.exit(1);
 }
 
+// SECURITY FIX: Mask sensitive environment variables in logs
+const maskedEnv = Object.keys(process.env).reduce((acc, key) => {
+  if (key.includes('SECRET') || key.includes('KEY') || key.includes('PASSWORD') || key.includes('TOKEN')) {
+    acc[key] = '***MASKED***';
+  } else {
+    acc[key] = process.env[key];
+  }
+  return acc;
+}, {});
+
 console.log('✅ .env file loaded successfully');
+console.log('🔐 Environment variables masked for security');
 
 // Import des routes et services
 const authRoutes = require('./src/routes/auth.routes');

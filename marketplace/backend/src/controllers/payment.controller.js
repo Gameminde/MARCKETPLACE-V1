@@ -5,13 +5,13 @@ const Joi = require('joi');
 
 class PaymentController extends BaseController {
   constructor() {
-    super('PAYMENT');
+    super();
   }
 
   /**
    * Créer un Payment Intent pour un paiement
    */
-  createPaymentIntent = this.asyncHandler(async (req, res) => {
+  createPaymentIntent = async (req, res) => {
     // Validation des données d'entrée
     const schema = Joi.object({
       amount: Joi.number().positive().precision(2).required(),
@@ -46,24 +46,21 @@ class PaymentController extends BaseController {
         paymentIntentId: paymentIntent.id
       });
 
-      res.json({
-        success: true,
-        data: {
-          clientSecret: paymentIntent.client_secret,
-          paymentIntentId: paymentIntent.id,
-          amount: validatedData.amount,
-          currency: validatedData.currency
-        }
+      this.sendSuccess(res, {
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        amount: validatedData.amount,
+        currency: validatedData.currency
       });
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Créer une session de checkout Stripe
    */
-  createCheckoutSession = this.asyncHandler(async (req, res) => {
+  createCheckoutSession = async (req, res) => {
     const schema = Joi.object({
       items: Joi.array().items(Joi.object({
         name: Joi.string().required(),
@@ -97,22 +94,19 @@ class PaymentController extends BaseController {
         itemCount: validatedData.items.length
       });
 
-      res.json({
-        success: true,
-        data: {
-          sessionId: session.id,
-          url: session.url
-        }
+      this.sendSuccess(res, {
+        sessionId: session.id,
+        url: session.url
       });
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Webhook Stripe pour traiter les événements
    */
-  handleWebhook = this.asyncHandler(async (req, res) => {
+  handleWebhook = async (req, res) => {
     const signature = req.headers['stripe-signature'];
     
     if (!signature) {
@@ -141,17 +135,14 @@ class PaymentController extends BaseController {
         signature: signature?.substring(0, 20) + '...'
       });
       
-      res.status(400).json({
-        success: false,
-        error: 'Webhook signature verification failed'
-      });
+      this.sendError(res, new Error('Webhook signature verification failed'), 400);
     }
-  });
+  };
 
   /**
    * Créer un compte connecté pour un vendeur
    */
-  createSellerAccount = this.asyncHandler(async (req, res) => {
+  createSellerAccount = async (req, res) => {
     const schema = Joi.object({
       email: Joi.string().email().required(),
       country: Joi.string().length(2).uppercase().default('FR'),
@@ -185,22 +176,19 @@ class PaymentController extends BaseController {
         accountId: account.id
       });
 
-      res.json({
-        success: true,
-        data: {
-          accountId: account.id,
-          onboardingUrl: accountLink.url
-        }
+      this.sendSuccess(res, {
+        accountId: account.id,
+        onboardingUrl: accountLink.url
       });
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Créer un transfert vers un vendeur
    */
-  createTransfer = this.asyncHandler(async (req, res) => {
+  createTransfer = async (req, res) => {
     const schema = Joi.object({
       amount: Joi.number().positive().precision(2).required(),
       destinationAccountId: Joi.string().required(),
@@ -234,22 +222,19 @@ class PaymentController extends BaseController {
         marketplaceFee: feeCalculation.marketplaceFee
       });
 
-      res.json({
-        success: true,
-        data: {
-          transferId: transfer.id,
-          ...feeCalculation
-        }
+      this.sendSuccess(res, {
+        transferId: transfer.id,
+        ...feeCalculation
       });
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Créer un remboursement
    */
-  createRefund = this.asyncHandler(async (req, res) => {
+  createRefund = async (req, res) => {
     const schema = Joi.object({
       paymentIntentId: Joi.string().required(),
       amount: Joi.number().positive().precision(2).optional(),
@@ -277,49 +262,40 @@ class PaymentController extends BaseController {
         reason: validatedData.reason
       });
 
-      res.json({
-        success: true,
-        data: {
-          refundId: refund.id,
-          amount: refund.amount / 100,
-          status: refund.status,
-          reason: refund.reason
-        }
+      this.sendSuccess(res, {
+        refundId: refund.id,
+        amount: refund.amount / 100,
+        status: refund.status,
+        reason: refund.reason
       });
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Obtenir le solde d'un compte vendeur
    */
-  getAccountBalance = this.asyncHandler(async (req, res) => {
+  getAccountBalance = async (req, res) => {
     const { accountId } = req.params;
 
     if (!accountId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Account ID is required'
-      });
+      return this.sendError(res, new Error('Account ID is required'), 400);
     }
 
     try {
       const balance = await stripeService.getAccountBalance(accountId);
 
-      res.json({
-        success: true,
-        data: balance
-      });
+      this.sendSuccess(res, balance);
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Calculer les frais marketplace
    */
-  calculateFees = this.asyncHandler(async (req, res) => {
+  calculateFees = async (req, res) => {
     const schema = Joi.object({
       amount: Joi.number().positive().precision(2).required(),
       feePercentage: Joi.number().min(0).max(10).default(3)
@@ -333,46 +309,37 @@ class PaymentController extends BaseController {
         validatedData.feePercentage
       );
 
-      res.json({
-        success: true,
-        data: calculation
-      });
+      this.sendSuccess(res, calculation);
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 
   /**
    * Obtenir le statut d'un paiement
    */
-  getPaymentStatus = this.asyncHandler(async (req, res) => {
+  getPaymentStatus = async (req, res) => {
     const { paymentIntentId } = req.params;
 
     if (!paymentIntentId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Payment Intent ID is required'
-      });
+      return this.sendError(res, new Error('Payment Intent ID is required'), 400);
     }
 
     try {
       const paymentIntent = await stripeService.stripe.paymentIntents.retrieve(paymentIntentId);
 
-      res.json({
-        success: true,
-        data: {
-          id: paymentIntent.id,
-          status: paymentIntent.status,
-          amount: paymentIntent.amount / 100,
-          currency: paymentIntent.currency,
-          created: new Date(paymentIntent.created * 1000),
-          metadata: paymentIntent.metadata
-        }
+      this.sendSuccess(res, {
+        id: paymentIntent.id,
+        status: paymentIntent.status,
+        amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency,
+        created: new Date(paymentIntent.created * 1000),
+        metadata: paymentIntent.metadata
       });
     } catch (error) {
-      this.handleError(error, req, res);
+      this.sendError(res, error);
     }
-  });
+  };
 }
 
 module.exports = new PaymentController();
