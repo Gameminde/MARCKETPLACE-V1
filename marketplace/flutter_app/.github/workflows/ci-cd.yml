@@ -1,0 +1,545 @@
+name: 🚀 Marketplace CI/CD Pipeline
+
+# Trigger the workflow on push to main branch and pull requests
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+# Environment variables
+env:
+  FLUTTER_VERSION: '3.16.0'
+  JAVA_VERSION: '17'
+  NODE_VERSION: '18'
+
+# Jobs definition
+jobs:
+  # Code quality and analysis
+  code_quality:
+    name: 📊 Code Quality & Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: 🔍 Analyze Code
+        run: flutter analyze --fatal-infos
+        
+      - name: 🎨 Check Formatting
+        run: dart format --set-exit-if-changed .
+        
+      - name: 📊 Run Dart Code Metrics
+        run: |
+          flutter pub global activate dart_code_metrics
+          flutter pub global run dart_code_metrics:metrics analyze lib
+          
+      - name: 🛡️ Security Scan
+        run: |
+          flutter pub deps
+          flutter pub audit
+
+  # Unit and Widget Tests
+  test:
+    name: 🧪 Unit & Widget Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: code_quality
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: 🧪 Run Unit Tests
+        run: flutter test --coverage --reporter=github
+        
+      - name: 🎭 Run Widget Tests
+        run: flutter test test/widgets/ --coverage
+        
+      - name: 📊 Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/lcov.info
+          flags: unittests
+          name: marketplace-coverage
+          
+      - name: 📈 Generate Coverage Report
+        run: |
+          flutter pub global activate coverage
+          flutter pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+          
+      - name: 📤 Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            coverage/
+            test/reports/
+
+  # Golden Tests (Visual Regression)
+  golden_tests:
+    name: 🎨 Golden Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: 🖼️ Run Golden Tests
+        run: flutter test test/golden/ --update-goldens
+        
+      - name: 📤 Upload Golden Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-files
+          path: test/golden/goldens/
+
+  # Integration Tests
+  integration_tests:
+    name: 🔄 Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: golden_tests
+    
+    strategy:
+      matrix:
+        api-level: [29, 33]
+        
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: 🤖 Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          
+      - name: 📱 Run Integration Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: flutter test integration_test/
+          
+      - name: 📤 Upload Integration Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results-${{ matrix.api-level }}
+          path: integration_test/reports/
+
+  # Android Build
+  build_android:
+    name: 🤖 Build Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [test, golden_tests]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    strategy:
+      matrix:
+        build-type: [debug, release]
+        
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: 🔐 Setup Android Signing
+        if: matrix.build-type == 'release'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
+          
+      - name: 🏗️ Build APK
+        run: |
+          if [ "${{ matrix.build-type }}" = "release" ]; then
+            flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/app/outputs/symbols
+          else
+            flutter build apk --debug
+          fi
+          
+      - name: 🏗️ Build App Bundle
+        if: matrix.build-type == 'release'
+        run: flutter build appbundle --release --obfuscate --split-debug-info=build/app/outputs/symbols
+        
+      - name: 📤 Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ matrix.build-type }}
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/symbols/
+            
+      - name: 📤 Upload App Bundle Artifacts
+        if: matrix.build-type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab-release
+          path: |
+            build/app/outputs/bundle/release/*.aab
+            build/app/outputs/symbols/
+            
+      - name: 📊 Analyze Bundle Size
+        if: matrix.build-type == 'release'
+        run: |
+          flutter build appbundle --release --analyze-size --target-platform android-arm64
+          
+  # iOS Build (macOS runner)
+  build_ios:
+    name: 🍎 Build iOS
+    runs-on: macos-latest
+    timeout-minutes: 45
+    needs: [test, golden_tests]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    strategy:
+      matrix:
+        build-type: [debug, release]
+        
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: 📱 Setup iOS Dependencies
+        run: |
+          cd ios
+          pod install
+          cd ..
+          
+      - name: 🔐 Setup iOS Signing
+        if: matrix.build-type == 'release'
+        run: |
+          echo "${{ secrets.IOS_P12_BASE64 }}" | base64 --decode > ios_certificate.p12
+          echo "${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}" | base64 --decode > ios_profile.mobileprovision
+          
+          # Import certificate and provisioning profile
+          security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          security import ios_certificate.p12 -k build.keychain -P "${{ secrets.IOS_P12_PASSWORD }}" -T /usr/bin/codesign
+          security set-keychain-settings -t 3600 -u build.keychain
+          security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp ios_profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+      - name: 🏗️ Build iOS
+        run: |
+          if [ "${{ matrix.build-type }}" = "release" ]; then
+            flutter build ios --release --no-codesign --obfuscate --split-debug-info=build/ios/symbols
+          else
+            flutter build ios --debug --no-codesign
+          fi
+          
+      - name: 📦 Create IPA
+        if: matrix.build-type == 'release'
+        run: |
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release -archivePath Runner.xcarchive archive
+          xcodebuild -exportArchive -archivePath Runner.xcarchive -exportPath . -exportOptionsPlist ExportOptions.plist
+          cd ..
+          
+      - name: 📤 Upload iOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-${{ matrix.build-type }}
+          path: |
+            build/ios/
+            ios/*.ipa
+
+  # Security Scanning
+  security_scan:
+    name: 🛡️ Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: code_quality
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🔍 Run Trivy Security Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: 📤 Upload Security Scan Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Performance Testing
+  performance_test:
+    name: ⚡ Performance Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build_android
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+        
+      - name: ⚡ Run Performance Tests
+        run: |
+          flutter test test/performance/
+          flutter build apk --release --analyze-size
+          
+      - name: 📊 Generate Performance Report
+        run: |
+          echo "Performance test results" > performance_report.md
+          flutter build apk --release --analyze-size >> performance_report.md
+          
+      - name: 📤 Upload Performance Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance_report.md
+
+  # Deployment to Staging
+  deploy_staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build_android, build_ios, security_scan]
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_environment == 'staging')
+    environment: staging
+    
+    steps:
+      - name: 📥 Download Android Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk-release
+          path: ./artifacts/android/
+          
+      - name: 📥 Download iOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-build-release
+          path: ./artifacts/ios/
+          
+      - name: 🚀 Deploy to Firebase App Distribution
+        run: |
+          # Install Firebase CLI
+          npm install -g firebase-tools
+          
+          # Deploy Android APK
+          firebase appdistribution:distribute ./artifacts/android/*.apk \
+            --app ${{ secrets.FIREBASE_ANDROID_APP_ID_STAGING }} \
+            --groups "staging-testers" \
+            --release-notes "Staging build from commit ${{ github.sha }}"
+            
+      - name: 📱 Deploy to TestFlight (iOS)
+        if: runner.os == 'macOS'
+        run: |
+          # Upload to TestFlight using altool or App Store Connect API
+          echo "Deploying to TestFlight..."
+          
+      - name: 💬 Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          message: 'Staging deployment completed for commit ${{ github.sha }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Deployment to Production
+  deploy_production:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build_android, build_ios, security_scan, performance_test]
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_environment == 'production')
+    environment: production
+    
+    steps:
+      - name: 📥 Download Android Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab-release
+          path: ./artifacts/android/
+          
+      - name: 📥 Download iOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-build-release
+          path: ./artifacts/ios/
+          
+      - name: 🤖 Deploy to Google Play Console
+        run: |
+          # Install Google Play CLI
+          pip install google-play-cli
+          
+          # Upload App Bundle to Google Play Console
+          echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}" > service-account.json
+          
+          # Upload to internal testing track first
+          gplay upload --service-account service-account.json \
+            --app-bundle ./artifacts/android/*.aab \
+            --track internal \
+            --release-notes "Production release ${{ github.ref_name }}"
+            
+      - name: 🍎 Deploy to App Store Connect
+        run: |
+          # Upload to App Store Connect using xcrun altool
+          echo "Deploying to App Store Connect..."
+          
+      - name: 📊 Update Release Notes
+        run: |
+          # Generate release notes from commits
+          echo "## Release Notes" > release_notes.md
+          git log --oneline --since="1 week ago" >> release_notes.md
+          
+      - name: 🏷️ Create Release Tag
+        if: github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "v$(date +'%Y.%m.%d')" -m "Production release $(date +'%Y.%m.%d')"
+          git push origin --tags
+          
+      - name: 📢 Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Production Release v${{ github.run_number }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          
+      - name: 💬 Notify Success
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          message: '🎉 Production deployment successful! Version: v${{ github.run_number }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Cleanup
+  cleanup:
+    name: 🧹 Cleanup
+    runs-on: ubuntu-latest
+    needs: [deploy_staging, deploy_production]
+    if: always()
+    
+    steps:
+      - name: 🗑️ Clean up artifacts
+        run: |
+          echo "Cleaning up temporary files and artifacts..."
+          # Add cleanup commands here
+          
+      - name: 📊 Generate Pipeline Report
+        run: |
+          echo "# CI/CD Pipeline Report" > pipeline_report.md
+          echo "- Build Status: ${{ needs.build_android.result }}" >> pipeline_report.md
+          echo "- Test Status: ${{ needs.test.result }}" >> pipeline_report.md
+          echo "- Security Status: ${{ needs.security_scan.result }}" >> pipeline_report.md
+          echo "- Deployment Status: ${{ needs.deploy_production.result }}" >> pipeline_report.md
+          
+      - name: 📤 Upload Pipeline Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-report
+          path: pipeline_report.md

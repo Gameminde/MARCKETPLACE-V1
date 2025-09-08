@@ -1,0 +1,201 @@
+# Localized App Store Metadata
+# This file contains translations for app store metadata across supported languages
+
+metadata:
+  version: "2.1.0"
+  last_updated: "2024-12-01"
+  supported_languages: 12
+
+languages:
+  
+  # English (Primary)
+  en:
+    app_name: "Marketplace: Smart Shopping"
+    subtitle: "AI Shopping & Social Commerce"
+    keywords: "shopping,marketplace,deals,AI search,social,checkout,fashion,electronics,reviews,rewards"
+    promotional_text: "Discover amazing deals with AI-powered search! Shop from thousands of verified sellers, earn rewards, and enjoy seamless checkout experience."
+    short_description: "Premium shopping app with AI search, social features & seamless checkout"
+    
+  # Spanish
+  es:
+    app_name: "Marketplace: Compras Inteligentes"
+    subtitle: "IA Compras y Comercio Social"
+    keywords: "compras,mercado,ofertas,búsqueda IA,social,pago,moda,electrónicos,reseñas,recompensas"
+    promotional_text: "¡Descubre ofertas increíbles con búsqueda impulsada por IA! Compra de miles de vendedores verificados, gana recompensas y disfruta una experiencia de pago perfecta."
+    short_description: "App premium de compras con búsqueda IA, características sociales y pago fluido"
+    
+  # French  
+  fr:
+    app_name: "Marketplace: Shopping Intelligent"
+    subtitle: "IA Shopping & Commerce Social"
+    keywords: "shopping,marché,offres,recherche IA,social,paiement,mode,électronique,avis,récompenses"
+    promotional_text: "Découvrez des offres incroyables avec la recherche alimentée par l'IA! Achetez auprès de milliers de vendeurs vérifiés, gagnez des récompenses et profitez d'une expérience de paiement fluide."
+    short_description: "App de shopping premium avec recherche IA, fonctionnalités sociales et paiement fluide"
+    
+  # German
+  de:
+    app_name: "Marketplace: Intelligentes Einkaufen"
+    subtitle: "KI Shopping & Social Commerce"
+    keywords: "einkaufen,marktplatz,angebote,KI suche,sozial,kasse,mode,elektronik,bewertungen,belohnungen"
+    promotional_text: "Entdecken Sie erstaunliche Angebote mit KI-gestützter Suche! Kaufen Sie bei Tausenden verifizierten Verkäufern, verdienen Sie Belohnungen und genießen Sie nahtlose Checkout-Erfahrung."
+    short_description: "Premium Shopping-App mit KI-Suche, sozialen Features und nahtlosem Checkout"
+    
+  # Italian
+  it:
+    app_name: "Marketplace: Shopping Intelligente"
+    subtitle: "IA Shopping & Commercio Sociale"
+    keywords: "shopping,mercato,offerte,ricerca IA,sociale,pagamento,moda,elettronica,recensioni,ricompense"
+    promotional_text: "Scopri offerte incredibili con ricerca alimentata dall'IA! Acquista da migliaia di venditori verificati, guadagna ricompense e goditi un'esperienza di checkout senza interruzioni."
+    short_description: "App shopping premium con ricerca IA, funzionalità sociali e checkout fluido"
+    
+  # Portuguese
+  pt:
+    app_name: "Marketplace: Compras Inteligentes"
+    subtitle: "IA Compras & Comércio Social"
+    keywords: "compras,mercado,ofertas,busca IA,social,pagamento,moda,eletrônicos,avaliações,recompensas"
+    promotional_text: "Descubra ofertas incríveis com busca alimentada por IA! Compre de milhares de vendedores verificados, ganhe recompensas e desfrute de experiência de checkout perfeita."
+    short_description: "App premium de compras com busca IA, recursos sociais e checkout fluido"
+    
+  # Arabic
+  ar:
+    app_name: "ماركت بليس: التسوق الذكي"
+    subtitle: "الذكاء الاصطناعي والتجارة الاجتماعية"
+    keywords: "تسوق,سوق,عروض,بحث ذكي,اجتماعي,دفع,أزياء,إلكترونيات,مراجعات,مكافآت"
+    promotional_text: "اكتشف عروض مذهلة مع البحث المدعوم بالذكاء الاصطناعي! تسوق من آلاف البائعين الموثقين، احصل على مكافآت، واستمتع بتجربة دفع سلسة."
+    short_description: "تطبيق تسوق متميز مع بحث ذكي وميزات اجتماعية ودفع سلس"
+    
+  # Russian
+  ru:
+    app_name: "Marketplace: Умные Покупки"
+    subtitle: "ИИ Покупки и Социальная Торговля"
+    keywords: "покупки,маркетплейс,предложения,ИИ поиск,социальный,оплата,мода,электроника,отзывы,награды"
+    promotional_text: "Откройте для себя удивительные предложения с поиском на базе ИИ! Покупайте у тысяч проверенных продавцов, зарабатывайте награды и наслаждайтесь бесшовным оформлением заказа."
+    short_description: "Премиум приложение для покупок с ИИ поиском, социальными функциями и плавной оплатой"
+    
+  # Japanese
+  ja:
+    app_name: "マーケットプレイス：スマートショッピング"
+    subtitle: "AI ショッピング・ソーシャルコマース"
+    keywords: "ショッピング,マーケットプレイス,お得,AI検索,ソーシャル,決済,ファッション,電子機器,レビュー,報酬"
+    promotional_text: "AI搭載の検索で素晴らしいお得な情報を発見！数千の認証済み販売者から購入し、報酬を獲得し、シームレスなチェックアウト体験をお楽しみください。"
+    short_description: "AI検索、ソーシャル機能、シームレスなチェックアウトを備えたプレミアムショッピングアプリ"
+    
+  # Korean
+  ko:
+    app_name: "마켓플레이스: 스마트 쇼핑"
+    subtitle: "AI 쇼핑 & 소셜 커머스"
+    keywords: "쇼핑,마켓플레이스,할인,AI검색,소셜,결제,패션,전자제품,리뷰,리워드"
+    promotional_text: "AI 기반 검색으로 놀라운 할인 혜택을 발견하세요! 수천 명의 인증된 판매자로부터 구매하고, 리워드를 얻고, 원활한 결제 경험을 즐기세요."
+    short_description: "AI 검색, 소셜 기능 및 원활한 결제가 포함된 프리미엄 쇼핑 앱"
+    
+  # Chinese Simplified
+  zh_CN:
+    app_name: "市场：智能购物"
+    subtitle: "AI购物和社交商务"
+    keywords: "购物,市场,优惠,AI搜索,社交,结账,时尚,电子产品,评论,奖励"
+    promotional_text: "通过AI驱动的搜索发现惊人的优惠！从数千名经过验证的卖家购买，赚取奖励，享受无缝的结账体验。"
+    short_description: "具有AI搜索、社交功能和无缝结账的高级购物应用"
+    
+  # Chinese Traditional
+  zh_TW:
+    app_name: "市場：智能購物"
+    subtitle: "AI購物和社交商務"
+    keywords: "購物,市場,優惠,AI搜尋,社交,結帳,時尚,電子產品,評論,獎勵"
+    promotional_text: "透過AI驅動的搜尋發現驚人的優惠！從數千名經過驗證的賣家購買，賺取獎勵，享受無縫的結帳體驗。"
+    short_description: "具有AI搜尋、社交功能和無縫結帳的高級購物應用"
+
+# Localized What's New (Release Notes)
+whats_new:
+  en: |
+    🚀 Major Update v2.1.0!
+    
+    🔍 Enhanced AI Search - 40% more accurate with visual search
+    🛒 Express Checkout - Complete purchases in just 2 taps  
+    👥 Social Features - New product sharing and video reviews
+    🎨 Design Updates - Improved glassmorphic UI and animations
+    ⚡ Performance - 30% faster startup and better offline experience
+    
+    Update now for the best shopping experience yet!
+    
+  es: |
+    🚀 ¡Actualización Mayor v2.1.0!
+    
+    🔍 Búsqueda IA Mejorada - 40% más precisa con búsqueda visual
+    🛒 Pago Exprés - Completa compras en solo 2 toques
+    👥 Funciones Sociales - Nuevo compartir productos y reseñas en video
+    🎨 Actualizaciones de Diseño - UI glassmórfico mejorado y animaciones
+    ⚡ Rendimiento - 30% inicio más rápido y mejor experiencia offline
+    
+    ¡Actualiza ahora para la mejor experiencia de compras!
+    
+  fr: |
+    🚀 Mise à Jour Majeure v2.1.0!
+    
+    🔍 Recherche IA Améliorée - 40% plus précise avec recherche visuelle
+    🛒 Paiement Express - Complétez les achats en seulement 2 taps
+    👥 Fonctionnalités Sociales - Nouveau partage de produits et avis vidéo
+    🎨 Mises à Jour Design - UI glassmorphique améliorée et animations
+    ⚡ Performance - 30% démarrage plus rapide et meilleure expérience hors ligne
+    
+    Mettez à jour maintenant pour la meilleure expérience shopping!
+
+# Screenshot Descriptions by Language  
+screenshot_descriptions:
+  en:
+    home: "Discover trending products with AI recommendations"
+    search: "Smart search with advanced filters and voice input"
+    product: "Detailed product views with reviews and social proof"
+    cart: "Simple and secure checkout with multiple payment options"
+    profile: "Manage your account, orders, and loyalty rewards"
+    messages: "Chat directly with sellers and customer support"
+    social: "Share products and read authentic user reviews"
+    rewards: "Earn XP points, badges, and unlock exclusive benefits"
+    
+  es:
+    home: "Descubre productos tendencia con recomendaciones IA"
+    search: "Búsqueda inteligente con filtros avanzados y entrada de voz"
+    product: "Vistas detalladas de productos con reseñas y prueba social"
+    cart: "Pago simple y seguro con múltiples opciones de pago"
+    profile: "Gestiona tu cuenta, pedidos y recompensas de lealtad"
+    messages: "Chatea directamente con vendedores y soporte al cliente"
+    social: "Comparte productos y lee reseñas auténticas de usuarios"
+    rewards: "Gana puntos XP, insignias y desbloquea beneficios exclusivos"
+
+# App Store Categories by Language
+categories:
+  en:
+    primary: "Shopping"
+    secondary: "Lifestyle"
+  es:
+    primary: "Compras"
+    secondary: "Estilo de vida"
+  fr:
+    primary: "Shopping"
+    secondary: "Style de vie"
+  de:
+    primary: "Shopping"
+    secondary: "Lifestyle"
+  it:
+    primary: "Shopping"
+    secondary: "Stile di vita"
+  pt:
+    primary: "Compras"
+    secondary: "Estilo de vida"
+  ar:
+    primary: "تسوق"
+    secondary: "نمط الحياة"
+  ru:
+    primary: "Покупки"
+    secondary: "Образ жизни"
+  ja:
+    primary: "ショッピング"
+    secondary: "ライフスタイル"
+  ko:
+    primary: "쇼핑"
+    secondary: "라이프스타일"
+  zh_CN:
+    primary: "购物"
+    secondary: "生活"
+  zh_TW:
+    primary: "購物"
+    secondary: "生活風格"
