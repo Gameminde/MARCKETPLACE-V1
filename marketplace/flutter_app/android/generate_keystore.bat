@@ -1,0 +1,2 @@
+@echo off
+"C:\Program Files\Java\jdk-17\bin\keytool.exe" -genkey -v -keystore "keystore.jks" -storepass marketplace123 -alias marketplace -keypass marketplace123 -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Marketplace Algeria, OU=Development, O=Marketplace, L=Algiers, S=Algiers, C=DZ" -noprompt

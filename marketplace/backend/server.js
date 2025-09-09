@@ -361,8 +361,9 @@ const validateEnv = () => {
   const missing = required.filter((env) => 
     !process.env[env] || 
     process.env[env].includes('placeholder') || 
-    process.env[env].includes('your-') ||
-    process.env[env].includes('localhost') // Prevent localhost in production
+    process.env[env].includes('your-')
+    // Allow localhost in development mode
+    || (process.env[env].includes('localhost') && process.env.NODE_ENV === 'production')
   );
   
   if (missing.length > 0) {

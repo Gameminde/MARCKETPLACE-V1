@@ -1,0 +1,8 @@
+{"error":"Redis client not ready","level":"error","message":"Error","service":"token-blacklist","timestamp":"2025-09-09T11:26:03.841Z"}
+{"error":"Redis client unavailable for token blacklist","level":"error","message":"Error","timestamp":"2025-09-09T11:26:03.978Z"}
+{"error":"Redis client not ready","level":"error","message":"Error","service":"token-blacklist","timestamp":"2025-09-09T11:26:03.960Z"}
+{"error":"Redis client unavailable for token blacklist","level":"error","message":"Error","timestamp":"2025-09-09T11:26:04.055Z"}
+{"error":"Redis client not ready","level":"error","message":"Error","service":"token-blacklist","timestamp":"2025-09-09T11:26:03.963Z"}
+{"error":"Redis client unavailable for token blacklist","level":"error","message":"Error","timestamp":"2025-09-09T11:26:04.077Z"}
+{"error":"Redis client not ready","level":"error","message":"Error","service":"token-blacklist","timestamp":"2025-09-09T11:26:04.164Z"}
+{"error":"Redis client unavailable for token blacklist","level":"error","message":"Error","timestamp":"2025-09-09T11:26:04.239Z"}

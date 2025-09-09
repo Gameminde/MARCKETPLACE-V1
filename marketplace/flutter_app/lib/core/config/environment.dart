@@ -1,6 +1,9 @@
 /// Environment configuration for different build environments
 /// This file manages API endpoints and configuration for Development, Staging, and Production
 
+// Import the secure config service
+import '../services/secure_config_service.dart';
+
 class Environment {
   static const String development = 'development';
   static const String staging = 'staging';
@@ -28,50 +31,6 @@ class Environment {
     development: 'http://localhost:3001/uploads',
     staging: 'https://staging-cdn.marketplace.com',
     production: 'https://cdn.marketplace.com',
-  };
-
-  // Stripe Keys
-  static const Map<String, Map<String, String>> _stripeKeys = {
-    development: {
-      'publishableKey': 'pk_test_development_key_here',
-      'merchantId': 'merchant.com.marketplace.dev',
-    },
-    staging: {
-      'publishableKey': 'pk_test_staging_key_here',
-      'merchantId': 'merchant.com.marketplace.staging',
-    },
-    production: {
-      'publishableKey': 'pk_live_production_key_here',
-      'merchantId': 'merchant.com.marketplace',
-    },
-  };
-
-  // Firebase Configuration
-  static const Map<String, Map<String, String>> _firebaseConfig = {
-    development: {
-      'apiKey': 'AIzaSyB_development_key_here',
-      'authDomain': 'marketplace-dev.firebaseapp.com',
-      'projectId': 'marketplace-dev',
-      'storageBucket': 'marketplace-dev.appspot.com',
-      'messagingSenderId': '123456789',
-      'appId': '1:123456789:web:abcdef123456',
-    },
-    staging: {
-      'apiKey': 'AIzaSyB_staging_key_here',
-      'authDomain': 'marketplace-staging.firebaseapp.com',
-      'projectId': 'marketplace-staging',
-      'storageBucket': 'marketplace-staging.appspot.com',
-      'messagingSenderId': '987654321',
-      'appId': '1:987654321:web:fedcba654321',
-    },
-    production: {
-      'apiKey': 'AIzaSyB_production_key_here',
-      'authDomain': 'marketplace-prod.firebaseapp.com',
-      'projectId': 'marketplace-prod',
-      'storageBucket': 'marketplace-prod.appspot.com',
-      'messagingSenderId': '112233445',
-      'appId': '1:112233445:web:production123456',
-    },
   };
 
   // App Configuration
@@ -182,8 +141,6 @@ class Environment {
   static String get baseUrl => _baseUrls[current]!;
   static String get wsUrl => _wsUrls[current]!;
   static String get cdnUrl => _cdnUrls[current]!;
-  static Map<String, String> get stripeKeys => _stripeKeys[current]!;
-  static Map<String, String> get firebaseConfig => _firebaseConfig[current]!;
   static Map<String, dynamic> get appConfig => _appConfig[current]!;
   static Map<String, bool> get featureFlags => _featureFlags[current]!;
 
@@ -191,6 +148,16 @@ class Environment {
   static bool get isDevelopment => current == development;
   static bool get isStaging => current == staging;
   static bool get isProduction => current == production;
+
+  // Secure configuration getters (using secure storage)
+  static Future<Map<String, String>> getSecureConfig() async {
+    final secureService = SecureConfigService();
+    return {
+      'stripePublishableKey': await secureService.getStripePublishableKey() ?? '',
+      'firebaseApiKey': await secureService.getFirebaseApiKey() ?? '',
+      'merchantId': await secureService.getMerchantId() ?? '',
+    };
+  }
 
   // API Endpoints
   static const Map<String, String> apiEndpoints = {
