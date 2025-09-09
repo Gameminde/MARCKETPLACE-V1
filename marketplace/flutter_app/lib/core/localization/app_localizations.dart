@@ -4,44 +4,45 @@ import 'package:flutter/services.dart';
 
 class AppLocalizations {
   final Locale locale;
-  
+
   AppLocalizations(this.locale);
-  
+
   // Helper method to access localized strings
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
-  
+
   // Static method to load localized strings
   static Future<AppLocalizations> load(Locale locale) async {
     final AppLocalizations localizations = AppLocalizations(locale);
-    await localizations.load();
+    await localizations.loadTranslations();
     return localizations;
   }
-  
+
   // Map to store localized strings
   late Map<String, String> _localizedStrings;
-  
+
   // Load localized strings from JSON files
-  Future<void> load() async {
+  Future<void> loadTranslations() async {
     try {
       final String jsonString = await rootBundle.loadString(
         'assets/l10n/${locale.languageCode}.json',
       );
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      
-      _localizedStrings = jsonMap.map((key, value) => MapEntry(key, value.toString()));
+
+      _localizedStrings =
+          jsonMap.map((key, value) => MapEntry(key, value.toString()));
     } catch (e) {
       // Fallback to empty map if file not found
       _localizedStrings = {};
     }
   }
-  
+
   // Get translated string
   String translate(String key) {
     return _localizedStrings[key] ?? key;
   }
-  
+
   // Generated getters for all localization keys
   String get appName => translate('app_name');
   String get welcome => translate('welcome');

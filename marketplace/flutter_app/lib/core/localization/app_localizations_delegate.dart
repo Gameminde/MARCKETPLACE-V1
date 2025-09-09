@@ -14,7 +14,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   @override
   Future<AppLocalizations> load(Locale locale) async {
     final AppLocalizations localizations = AppLocalizations(locale);
-    await localizations.load();
+    await localizations.loadTranslations();
     return localizations;
   }
 
@@ -22,7 +22,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   bool shouldReload(covariant LocalizationsDelegate<AppLocalizations> old) {
     return false;
   }
-  
+
   // Static method to access localized strings
   static AppLocalizationsDelegate delegate = const AppLocalizationsDelegate();
 }
