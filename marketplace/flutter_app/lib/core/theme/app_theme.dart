@@ -7,34 +7,44 @@ import 'dynamic_theme_manager.dart';
 /// Comprehensive app theme with glassmorphic design system,
 /// dynamic theming, and Material Design 3 support
 class AppTheme {
+  // Marketplace Color Palette - Based on Reference Images
+  static const Color primaryGreen = Color(0xFF235347); // Forest Green
+  static const Color secondaryGreen = Color(0xFF8EB69B); // Sage Green
+  static const Color backgroundMint = Color(0x0ffdafde); // Mint Light - Note: This seems incomplete, using mint green
+  static const Color backgroundMintLight = Color(0xFFE8F5E8); // Light mint background
+  static const Color surfaceWhite = Color(0xFFFFFFFF); // White surfaces
+  static const Color darkForest = Color(0xFF051F20); // Dark text
+  static const Color successGreen = Color(0xFF4CAF50); // Success states
+  static const Color warningOrange = Color(0xFFFF9800); // Badges, alerts
+  
   // Color Schemes
   static const ColorScheme _lightColorScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF1565C0),
+    primary: primaryGreen,
     onPrimary: Colors.white,
-    secondary: Color(0xFF42A5F5),
-    onSecondary: Colors.white,
-    tertiary: Color(0xFF29B6F6),
+    secondary: secondaryGreen,
+    onSecondary: darkForest,
+    tertiary: successGreen,
     onTertiary: Colors.white,
     error: Color(0xFFE57373),
     onError: Colors.white,
-    surface: Color(0xFFFAFAFA),
-    onSurface: Color(0xFF212121),
-    background: Color(0xFFF5F5F5),
-    onBackground: Color(0xFF212121),
+    surface: surfaceWhite,
+    onSurface: darkForest,
+    background: backgroundMintLight,
+    onBackground: darkForest,
     outline: Color(0xFFE0E0E0),
-    surfaceVariant: Color(0xFFEEEEEE),
-    onSurfaceVariant: Color(0xFF424242),
+    surfaceVariant: Color(0xFFF8F9FA),
+    onSurfaceVariant: Color(0xFF6C757D),
   );
   
   static const ColorScheme _darkColorScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFF42A5F5),
-    onPrimary: Color(0xFF0D47A1),
-    secondary: Color(0xFF29B6F6),
-    onSecondary: Color(0xFF01579B),
-    tertiary: Color(0xFF4FC3F7),
-    onTertiary: Color(0xFF006064),
+    primary: secondaryGreen,
+    onPrimary: darkForest,
+    secondary: primaryGreen,
+    onSecondary: Colors.white,
+    tertiary: successGreen,
+    onTertiary: darkForest,
     error: Color(0xFFEF5350),
     onError: Color(0xFFB71C1C),
     surface: Color(0xFF1E1E1E),
@@ -144,7 +154,7 @@ class AppTheme {
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
-          side: BorderSide(
+          side: const BorderSide(
             color: glassBorder,
             width: 1,
           ),
@@ -266,7 +276,7 @@ class AppTheme {
       visualDensity: VisualDensity.adaptivePlatformDensity,
       
       // Extensions
-      extensions: [
+      extensions: const [
         GlassmorphicThemeExtension(
           blurRadius: AppConstants.glassBlurRadius,
           opacity: AppConstants.glassOpacity,

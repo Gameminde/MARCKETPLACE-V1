@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:provider/provider.dart';
 import 'package:marketplace/main.dart' as app;
 import 'package:marketplace/providers/auth_provider.dart';
 import 'package:marketplace/providers/cart_provider.dart';

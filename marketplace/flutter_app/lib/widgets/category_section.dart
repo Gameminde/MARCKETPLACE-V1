@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 
 import '../core/config/app_constants.dart';
 import '../models/category.dart';
@@ -232,7 +231,7 @@ class _CategorySectionState extends State<CategorySection>
   Widget _buildChipStyle(BuildContext context) {
     final displayCategories = widget.categories.take(widget.maxDisplayCount).toList();
     
-    return Container(
+    return SizedBox(
       height: widget.height ?? 50,
       child: ListView.builder(
         controller: _scrollController,
@@ -299,7 +298,7 @@ class _CategorySectionState extends State<CategorySection>
   Widget _buildCarouselStyle(BuildContext context) {
     final displayCategories = widget.categories.take(widget.maxDisplayCount).toList();
     
-    return Container(
+    return SizedBox(
       height: widget.height ?? 120,
       child: PageView.builder(
         controller: PageController(viewportFraction: 0.85),

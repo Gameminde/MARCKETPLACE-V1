@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 
 import '../core/config/app_constants.dart';
 import '../models/product.dart';
-import '../core/theme/app_theme.dart';
 import 'glassmorphic_container.dart';
 import 'loading_states.dart';
 
@@ -106,7 +104,7 @@ class _ProductCardState extends State<ProductCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isHovered = false;
-  bool _isPressed = false;
+  final bool _isPressed = false;
   
   @override
   void initState() {
@@ -226,7 +224,7 @@ class _ProductCardState extends State<ProductCard>
       child: Row(
         children: [
           // Product image
-          Container(
+          SizedBox(
             width: 80,
             height: 80,
             child: _buildProductImage(context, isCompact: true),
@@ -257,7 +255,7 @@ class _ProductCardState extends State<ProductCard>
   Widget _buildProductImage(BuildContext context, {bool isCompact = false}) {
     final borderRadius = widget.style == ProductCardStyle.list 
         ? BorderRadius.circular(AppConstants.borderRadius)
-        : BorderRadius.vertical(
+        : const BorderRadius.vertical(
             top: Radius.circular(AppConstants.cardBorderRadius),
           );
     
@@ -374,7 +372,7 @@ class _ProductCardState extends State<ProductCard>
       child: Container(
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.6),
-          borderRadius: BorderRadius.vertical(
+          borderRadius: const BorderRadius.vertical(
             top: Radius.circular(AppConstants.cardBorderRadius),
           ),
         ),
@@ -465,13 +463,13 @@ class _ProductCardState extends State<ProductCard>
       children: [
         ...List.generate(5, (index) {
           if (index < widget.product.rating.floor()) {
-            return Icon(
+            return const Icon(
               Icons.star,
               size: 12,
               color: Colors.amber,
             );
           } else if (index < widget.product.rating) {
-            return Icon(
+            return const Icon(
               Icons.star_half,
               size: 12,
               color: Colors.amber,

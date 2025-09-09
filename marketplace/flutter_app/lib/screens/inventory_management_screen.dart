@@ -437,7 +437,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen>
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.warning, color: Colors.orange, size: 28),
+                      const Icon(Icons.warning, color: Colors.orange, size: 28),
                       const SizedBox(width: AppConstants.spacingM),
                       Text(
                         'Low Stock Alert',
@@ -479,7 +479,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Current stock: ${5 - index % 6}'),
-                      Text('Minimum required: 5'),
+                      const Text('Minimum required: 5'),
                       LinearProgressIndicator(
                         value: (5 - index % 6) / 5,
                         backgroundColor: Colors.grey[300],

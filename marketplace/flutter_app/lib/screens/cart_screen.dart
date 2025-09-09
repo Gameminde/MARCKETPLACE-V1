@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 
 import '../core/config/app_constants.dart';
 import '../models/cart_item.dart';
 import '../providers/cart_provider.dart';
-import '../providers/auth_provider.dart';
-import '../widgets/custom_app_bar.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/particle_background.dart';
-import '../widgets/loading_states.dart';
 import 'checkout_screen.dart';
 
 /// Comprehensive enhanced cart screen with glassmorphic design,
@@ -33,9 +28,10 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  bool _isProcessingCheckout = false;
-  bool _showGuestCheckoutOptions = false;
-  final CurrencyService _currencyService = CurrencyService();
+  final bool _isProcessingCheckout = false;
+  final bool _showGuestCheckoutOptions = false;
+  // Placeholder for currency service - to be implemented
+  // final CurrencyService _currencyService = CurrencyService();
   
   @override
   void initState() {
@@ -57,9 +53,10 @@ class _CartScreenState extends State<CartScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar.home(
-        title: 'Shopping Cart',
-        onSearchTap: () {},
+      appBar: AppBar(
+        title: const Text('Shopping Cart'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
@@ -105,16 +102,13 @@ class _CartScreenState extends State<CartScreen>
           ),
         ],
       ),
-      body: ParticleBackground.subtle(
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
         child: Consumer<CartProvider>(
           builder: (context, cartProvider, child) {
             if (cartProvider.isLoading) {
               return const Center(
-                child: LoadingStates(
-                  type: LoadingType.spinner,
-                  size: LoadingSize.large,
-                  message: 'Loading your cart...',
-                ),
+                child: CircularProgressIndicator(),
               );
             }
             
@@ -137,13 +131,17 @@ class _CartScreenState extends State<CartScreen>
           scale: _animationController.value,
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppConstants.spacingL),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GlassmorphicContainer.card(
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(AppConstants.spacingXL),
+                      padding: const EdgeInsets.all(32),
                       child: Column(
                         children: [
                           Container(
@@ -166,7 +164,7 @@ class _CartScreenState extends State<CartScreen>
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
-                          const SizedBox(height: AppConstants.spacingL),
+                          const SizedBox(height: 24),
                           Text(
                             'Your cart is empty',
                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -174,7 +172,7 @@ class _CartScreenState extends State<CartScreen>
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: AppConstants.spacingM),
+                          const SizedBox(height: 16),
                           Text(
                             'Add products you love to start building your perfect order',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -182,7 +180,7 @@ class _CartScreenState extends State<CartScreen>
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: AppConstants.spacingXL),
+                          const SizedBox(height: 32),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
@@ -192,7 +190,7 @@ class _CartScreenState extends State<CartScreen>
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(0, 56),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                             ),
@@ -201,7 +199,7 @@ class _CartScreenState extends State<CartScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppConstants.spacingL),
+                  const SizedBox(height: 24),
                   _buildQuickActions(context),
                 ],
               ),
@@ -220,9 +218,9 @@ class _CartScreenState extends State<CartScreen>
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
-                  AppConstants.spacingM,
-                  AppConstants.spacingXL + kToolbarHeight,
-                  AppConstants.spacingM,
+                  16,
+                  32 + kToolbarHeight,
+                  16,
                   0,
                 ),
                 sliver: SliverToBoxAdapter(
@@ -230,7 +228,7 @@ class _CartScreenState extends State<CartScreen>
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingM),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {

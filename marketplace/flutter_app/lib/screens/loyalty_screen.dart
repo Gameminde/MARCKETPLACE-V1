@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import '../core/config/app_constants.dart';
 import '../services/loyalty_program.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
-import '../widgets/custom_app_bar.dart';
 
 /// Comprehensive loyalty program screen
 class LoyaltyProgramScreen extends StatefulWidget {
@@ -100,7 +98,7 @@ class _LoyaltyProgramScreenState extends State<LoyaltyProgramScreen>
                 ...activeBenefits.map((benefit) => Padding(
                   padding: const EdgeInsets.only(bottom: AppConstants.spacingM),
                   child: _buildBenefitCard(benefit),
-                )).toList(),
+                )),
                 
               const SizedBox(height: AppConstants.spacingL),
               
@@ -424,7 +422,7 @@ class _LoyaltyProgramScreenState extends State<LoyaltyProgramScreen>
               )
             else
               ...recentTransactions.map((transaction) => 
-                _buildTransactionItem(transaction)).toList(),
+                _buildTransactionItem(transaction)),
           ],
         ),
       ),

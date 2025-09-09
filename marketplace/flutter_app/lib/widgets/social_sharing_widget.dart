@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../core/config/app_constants.dart';
 import '../services/xp_system.dart';
@@ -45,7 +44,7 @@ class ShareContent {
 
   /// Create share content for a product
   factory ShareContent.fromProduct(Product product, {String? customMessage}) {
-    final baseUrl = 'https://marketplace.app/product';
+    const baseUrl = 'https://marketplace.app/product';
     final url = '$baseUrl/${product.id}';
     
     String description = customMessage ?? 
@@ -266,7 +265,7 @@ class _SocialSharingWidgetState extends State<SocialSharingWidget> {
                 padding: const EdgeInsets.only(left: AppConstants.spacingS),
                 child: _buildPlatformButton(platform, compact: true),
               ),
-            ).toList(),
+            ),
             if (widget.platforms.length > 3) ...[
               const SizedBox(width: AppConstants.spacingS),
               GestureDetector(

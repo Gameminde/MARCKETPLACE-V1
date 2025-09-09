@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../core/config/app_constants.dart';
 import '../models/shop.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
 
 /// Vendor dashboard for comprehensive shop management
 class VendorDashboardScreen extends StatefulWidget {
@@ -19,7 +17,7 @@ class VendorDashboardScreen extends StatefulWidget {
 class _VendorDashboardScreenState extends State<VendorDashboardScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -648,7 +646,7 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen>
             Expanded(
               child: _buildAnalyticsCard(
                 'Rating',
-                '${widget.shop.rating.toStringAsFixed(1)}',
+                widget.shop.rating.toStringAsFixed(1),
                 Icons.star,
                 Colors.amber,
                 '+0.1',
@@ -718,9 +716,9 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen>
               ),
             ),
             const SizedBox(height: AppConstants.spacingL),
-            Container(
+            const SizedBox(
               height: 200,
-              child: const Center(
+              child: Center(
                 child: Text('Chart placeholder - Sales data visualization'),
               ),
             ),

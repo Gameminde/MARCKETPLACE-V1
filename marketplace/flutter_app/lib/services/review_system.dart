@@ -4,10 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 
-import '../core/config/app_constants.dart';
 import '../services/xp_system.dart';
 import '../services/api_service.dart';
-import '../models/user.dart';
 
 /// Review rating enumeration
 enum ReviewRating { one, two, three, four, five }
@@ -660,7 +658,7 @@ class ReviewSystem extends ChangeNotifier {
 
   /// Generate mock review statistics
   ReviewStats _generateMockStats(String productId) {
-    return ReviewStats(
+    return const ReviewStats(
       averageRating: 4.2,
       totalReviews: 156,
       ratingDistribution: {

@@ -267,7 +267,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
             margin: const EdgeInsets.only(bottom: AppConstants.spacingM),
             child: _buildPaymentMethodCard(method),
           );
-        }).toList(),
+        }),
       ],
     );
   }

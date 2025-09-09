@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../core/config/app_constants.dart';
@@ -557,7 +556,7 @@ class _MonitoringDashboardScreenState extends State<MonitoringDashboardScreen>
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.health_and_safety,
                   color: Colors.green,
                 ),

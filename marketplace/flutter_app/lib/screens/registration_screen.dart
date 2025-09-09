@@ -56,17 +56,17 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   // Step management
   int _currentStep = 0;
   final List<RegistrationStep> _steps = [
-    RegistrationStep(
+    const RegistrationStep(
       title: 'Personal Info',
       subtitle: 'Basic details',
       icon: Icons.person,
     ),
-    RegistrationStep(
+    const RegistrationStep(
       title: 'Account Setup',
       subtitle: 'Email & password',
       icon: Icons.security,
     ),
-    RegistrationStep(
+    const RegistrationStep(
       title: 'Verification',
       subtitle: 'Verify email',
       icon: Icons.verified_user,

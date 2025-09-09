@@ -7,7 +7,6 @@ import '../providers/auth_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/glassmorphic_container.dart';
 import '../widgets/particle_background.dart';
-import '../widgets/loading_states.dart';
 
 /// Comprehensive user settings screen with theme preferences,
 /// notification settings, privacy controls, and account management
@@ -764,7 +763,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                   Navigator.pop(context);
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -803,7 +802,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen>
                   Navigator.pop(context);
                 },
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

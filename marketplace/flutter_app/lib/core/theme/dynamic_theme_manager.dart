@@ -1,8 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'dart:math' as math;
 
 import '../config/app_constants.dart';
 
@@ -72,7 +70,7 @@ class DynamicThemeManager extends ChangeNotifier {
   Map<String, Color> _customColors = {};
   GlassmorphicConfig _glassConfig = const GlassmorphicConfig();
   bool _isAutoSeasonalEnabled = true;
-  bool _isPersistenceEnabled = true;
+  final bool _isPersistenceEnabled = true;
   String? _userId;
   DateTime? _lastThemeChange;
   
@@ -213,7 +211,7 @@ class DynamicThemeManager extends ChangeNotifier {
 
   /// Get comprehensive gradient for seasonal theme
   LinearGradient getGradientFor(SeasonalTheme theme, {bool? isDark}) {
-    final useDark = isDark ?? this.isDarkMode;
+    final useDark = isDark ?? isDarkMode;
     final baseColors = _getBaseColorsFor(theme);
     final adjustedColors = useDark 
         ? baseColors.map((c) => _darkenColor(c, 0.3)).toList()

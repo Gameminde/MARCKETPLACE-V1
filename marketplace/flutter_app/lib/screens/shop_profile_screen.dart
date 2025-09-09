@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../core/config/app_constants.dart';
 import '../models/shop.dart';
 import '../models/product.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
-import '../widgets/product_card.dart';
 import '../widgets/product_grid.dart';
 
 /// Shop profile screen displaying shop information with custom branding
@@ -77,7 +74,7 @@ class _ShopProfileScreenState extends State<ShopProfileScreen>
       floating: false,
       pinned: true,
       backgroundColor: _isScrolled 
-          ? branding.primaryColor?.withOpacity(0.9) 
+          ? branding.primaryColor.withOpacity(0.9) 
           : Colors.transparent,
       elevation: _isScrolled ? 4 : 0,
       flexibleSpace: FlexibleSpaceBar(
@@ -216,7 +213,7 @@ class _ShopProfileScreenState extends State<ShopProfileScreen>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: branding.primaryColor?.withOpacity(0.3) ?? 
+                    color: branding.primaryColor.withOpacity(0.3) ?? 
                            Theme.of(context).colorScheme.outline,
                     width: 2,
                   ),
@@ -327,7 +324,7 @@ class _ShopProfileScreenState extends State<ShopProfileScreen>
     final branding = widget.shop.branding;
     return Container(
       decoration: BoxDecoration(
-        color: branding.primaryColor?.withOpacity(0.1) ?? 
+        color: branding.primaryColor.withOpacity(0.1) ?? 
                Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(14),
       ),

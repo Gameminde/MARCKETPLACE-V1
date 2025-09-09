@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 
 import '../core/config/app_constants.dart';
-import '../models/cart_item.dart';
 import '../models/address.dart';
 import '../models/payment_method.dart';
 import '../providers/cart_provider.dart';
-import '../providers/auth_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/glassmorphic_container.dart';
 import '../widgets/particle_background.dart';
-import '../widgets/loading_states.dart';
 import 'order_confirmation_screen.dart';
 
 /// Comprehensive multi-step checkout screen with glassmorphic design,
@@ -41,21 +37,21 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // Checkout data
   Address? _selectedAddress;
   PaymentMethod? _selectedPaymentMethod;
-  String _promoCode = '';
-  double _discountAmount = 0;
+  final String _promoCode = '';
+  final double _discountAmount = 0;
   
   final List<CheckoutStep> _steps = [
-    CheckoutStep(
+    const CheckoutStep(
       title: 'Shipping',
       subtitle: 'Address & delivery',
       icon: Icons.local_shipping,
     ),
-    CheckoutStep(
+    const CheckoutStep(
       title: 'Payment',
       subtitle: 'Select method',
       icon: Icons.payment,
     ),
-    CheckoutStep(
+    const CheckoutStep(
       title: 'Review',
       subtitle: 'Confirm order',
       icon: Icons.assignment,
@@ -324,7 +320,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 ),
               ),
             );
-          }).toList(),
+          }),
           
           // Add New Address
           GlassmorphicContainer.card(
@@ -394,7 +390,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 ),
               ),
             );
-          }).toList(),
+          }),
           
           // Add New Payment Method
           GlassmorphicContainer.card(

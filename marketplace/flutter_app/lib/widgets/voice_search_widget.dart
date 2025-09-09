@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -53,12 +52,12 @@ class _VoiceSearchWidgetState extends State<VoiceSearchWidget>
   
   VoiceSearchState _currentState = VoiceSearchState.idle;
   String _transcript = '';
-  String _finalTranscript = '';
+  final String _finalTranscript = '';
   double _confidence = 0.0;
   String _selectedLanguage = 'en-US';
   Timer? _timeoutTimer;
   Timer? _confidenceTimer;
-  List<VoiceCommand> _recognizedCommands = [];
+  final List<VoiceCommand> _recognizedCommands = [];
   
   // Mock speech recognition for demo purposes
   bool _isListening = false;
@@ -197,7 +196,7 @@ class _VoiceSearchWidgetState extends State<VoiceSearchWidget>
   }
   
   Widget _buildVoiceVisualization(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 200,
       height: 200,
       child: Stack(
@@ -502,7 +501,7 @@ class _VoiceSearchWidgetState extends State<VoiceSearchWidget>
               style: Theme.of(context).textTheme.bodySmall,
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

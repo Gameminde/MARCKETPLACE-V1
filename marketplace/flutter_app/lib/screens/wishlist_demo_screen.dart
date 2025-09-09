@@ -43,9 +43,9 @@ class _WishlistDemoScreenState extends State<WishlistDemoScreen> {
                 },
                 onRemoveItem: (itemId) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Item removed from wishlist'),
-                      duration: const Duration(seconds: 1),
+                    const SnackBar(
+                      content: Text('Item removed from wishlist'),
+                      duration: Duration(seconds: 1),
                     ),
                   );
                 },
@@ -75,9 +75,9 @@ class _WishlistDemoScreenState extends State<WishlistDemoScreen> {
                 },
                 onRemoveItem: (itemId) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Item removed from wishlist'),
-                      duration: const Duration(seconds: 1),
+                    const SnackBar(
+                      content: Text('Item removed from wishlist'),
+                      duration: Duration(seconds: 1),
                     ),
                   );
                 },
@@ -101,9 +101,9 @@ class _WishlistDemoScreenState extends State<WishlistDemoScreen> {
                 maxItems: 5,
                 onRemoveItem: (itemId) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Item removed from wishlist'),
-                      duration: const Duration(seconds: 1),
+                    const SnackBar(
+                      content: Text('Item removed from wishlist'),
+                      duration: Duration(seconds: 1),
                     ),
                   );
                 },
@@ -128,9 +128,9 @@ class _WishlistDemoScreenState extends State<WishlistDemoScreen> {
                 shrinkWrap: true,
                 onRemoveItem: (itemId) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Item removed from wishlist'),
-                      duration: const Duration(seconds: 1),
+                    const SnackBar(
+                      content: Text('Item removed from wishlist'),
+                      duration: Duration(seconds: 1),
                     ),
                   );
                 },

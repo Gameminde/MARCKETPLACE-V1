@@ -217,7 +217,7 @@ class Shop {
           logoUrl: 'https://example.com/techhub_logo.png',
         ),
         settings: ShopSettings.defaultSettings(),
-        statistics: ShopStatistics(
+        statistics: const ShopStatistics(
           totalRevenue: 125000.0,
           monthlyRevenue: 15000.0,
           totalViews: 45000,
@@ -247,7 +247,7 @@ class Shop {
           logoUrl: 'https://example.com/fashion_logo.png',
         ),
         settings: ShopSettings.defaultSettings(),
-        statistics: ShopStatistics(
+        statistics: const ShopStatistics(
           totalRevenue: 78000.0,
           monthlyRevenue: 8500.0,
           totalViews: 25000,
@@ -273,7 +273,7 @@ class Shop {
         lastActiveAt: now.subtract(const Duration(days: 1)),
         branding: ShopBranding.defaultBranding(),
         settings: ShopSettings.defaultSettings(),
-        statistics: ShopStatistics(
+        statistics: const ShopStatistics(
           totalRevenue: 12000.0,
           monthlyRevenue: 2800.0,
           totalViews: 8500,

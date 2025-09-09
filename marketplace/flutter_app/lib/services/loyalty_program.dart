@@ -1,11 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-import '../core/config/app_constants.dart';
 import '../services/xp_system.dart';
-import '../models/user.dart';
 
 /// Loyalty tier enumeration
 enum LoyaltyTier {

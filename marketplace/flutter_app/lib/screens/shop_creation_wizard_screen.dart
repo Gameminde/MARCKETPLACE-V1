@@ -95,7 +95,7 @@ class _ShopCreationWizardScreenState extends State<ShopCreationWizardScreen> {
 
   Widget _buildTemplateSelectionStep() {
     final templates = [
-      ShopTemplate(
+      const ShopTemplate(
         id: 'electronics',
         name: 'Electronics Store',
         description: 'Perfect for selling gadgets, phones, and tech accessories',
@@ -103,7 +103,7 @@ class _ShopCreationWizardScreenState extends State<ShopCreationWizardScreen> {
         color: Colors.blue,
         features: ['Tech product showcase', 'Warranty tracking', 'Comparison tools'],
       ),
-      ShopTemplate(
+      const ShopTemplate(
         id: 'fashion',
         name: 'Fashion Boutique',
         description: 'Ideal for clothing, accessories, and fashion items',
@@ -111,7 +111,7 @@ class _ShopCreationWizardScreenState extends State<ShopCreationWizardScreen> {
         color: Colors.pink,
         features: ['Size guides', 'Style recommendations', 'Seasonal collections'],
       ),
-      ShopTemplate(
+      const ShopTemplate(
         id: 'books',
         name: 'Bookstore',
         description: 'Great for books, educational materials, and media',
@@ -119,7 +119,7 @@ class _ShopCreationWizardScreenState extends State<ShopCreationWizardScreen> {
         color: Colors.brown,
         features: ['Book reviews', 'Author profiles', 'Reading lists'],
       ),
-      ShopTemplate(
+      const ShopTemplate(
         id: 'general',
         name: 'General Store',
         description: 'Flexible template for any type of products',

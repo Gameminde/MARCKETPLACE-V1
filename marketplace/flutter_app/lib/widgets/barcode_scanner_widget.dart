@@ -6,7 +6,6 @@ import 'dart:math' as math;
 import '../core/config/app_constants.dart';
 import '../models/product.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
 import '../widgets/particle_background.dart';
 
 /// Comprehensive barcode scanner widget for product identification
@@ -147,7 +146,7 @@ class _BarcodeScannerWidgetState extends State<BarcodeScannerWidget>
   
   Widget _buildScannerOverlay(BuildContext context) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: 280,
         height: 280,
         child: Stack(
@@ -236,7 +235,7 @@ class _BarcodeScannerWidgetState extends State<BarcodeScannerWidget>
     return AnimatedBuilder(
       animation: _cornerController,
       builder: (context, child) {
-        return Container(
+        return SizedBox(
           width: 30,
           height: 30,
           child: CustomPaint(
@@ -431,7 +430,7 @@ class _BarcodeScannerWidgetState extends State<BarcodeScannerWidget>
         Container(
           width: 64,
           height: 64,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.green,
             shape: BoxShape.circle,
           ),
@@ -877,7 +876,7 @@ class ScannerFramePainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    final cornerLength = 30.0;
+    const cornerLength = 30.0;
     final animatedLength = cornerLength * cornerAnimation.value;
 
     // Draw corner brackets
@@ -937,7 +936,7 @@ class CornerIndicatorPainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
-    final length = 15.0;
+    const length = 15.0;
     final path = Path();
 
     if (alignment == Alignment.topLeft) {

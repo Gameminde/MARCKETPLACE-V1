@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 
 import '../core/config/app_constants.dart';
-import '../core/theme/app_theme.dart';
 import 'glassmorphic_container.dart';
 
 /// Comprehensive custom app bar widget with glassmorphic design,
@@ -175,7 +174,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildHomeAppBar(BuildContext context, ThemeData theme, bool isDark) {
-    return Container(
+    return SizedBox(
       height: preferredSize.height,
       child: enableGlassmorphism
           ? GlassmorphicContainer.navigation(
@@ -262,7 +261,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildOverlayAppBar(BuildContext context, ThemeData theme, bool isDark) {
-    return Container(
+    return SizedBox(
       height: preferredSize.height,
       child: SafeArea(
         child: Padding(

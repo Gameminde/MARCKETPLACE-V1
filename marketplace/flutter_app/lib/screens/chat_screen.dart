@@ -6,8 +6,6 @@ import 'package:provider/provider.dart';
 import '../core/config/app_constants.dart';
 import '../models/message.dart';
 import '../services/messaging_service.dart';
-import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
 
 /// Individual chat screen for conversations
 class ChatScreen extends StatefulWidget {

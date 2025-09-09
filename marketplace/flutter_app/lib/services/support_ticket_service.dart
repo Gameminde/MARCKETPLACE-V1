@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/support_ticket.dart';
 import '../services/notification_service.dart';
-import '../core/config/app_constants.dart';
 
 /// Support ticket service for managing customer service tickets
 class SupportTicketService extends ChangeNotifier {

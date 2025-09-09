@@ -1,3 +1,5 @@
+import 'product.dart';
+
 /// Search result container
 class SearchResult {
   final bool success;
@@ -7,7 +9,7 @@ class SearchResult {
   final bool hasMore;
   final Map<String, dynamic>? insights;
   final List<SearchSuggestion>? suggestions;
-  
+
   SearchResult({
     required this.success,
     this.message,
@@ -17,7 +19,7 @@ class SearchResult {
     this.insights,
     this.suggestions,
   });
-  
+
   factory SearchResult.success({
     required List<Product> products,
     required int totalCount,
@@ -34,11 +36,29 @@ class SearchResult {
       suggestions: suggestions,
     );
   }
-  
+
   factory SearchResult.error(String message) {
     return SearchResult(
       success: false,
       message: message,
+    );
+  }
+
+  factory SearchResult.fromJson(Map<String, dynamic> json) {
+    return SearchResult(
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String?,
+      products: (json['products'] as List<dynamic>?)
+              ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      totalCount: json['totalCount'] as int? ?? 0,
+      hasMore: json['hasMore'] as bool? ?? false,
+      insights: json['insights'] as Map<String, dynamic>?,
+      suggestions: (json['suggestions'] as List<dynamic>?)
+          ?.map(
+              (item) => SearchSuggestion.fromJson(item as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -50,7 +70,7 @@ class SearchSuggestion {
   final int? count;
   final bool isPopular;
   final bool isFromHistory;
-  
+
   SearchSuggestion({
     required this.text,
     this.category,
@@ -58,7 +78,7 @@ class SearchSuggestion {
     this.isPopular = false,
     this.isFromHistory = false,
   });
-  
+
   factory SearchSuggestion.fromJson(Map<String, dynamic> json) {
     return SearchSuggestion(
       text: json['text'] as String,
@@ -68,7 +88,7 @@ class SearchSuggestion {
       isFromHistory: json['isFromHistory'] as bool? ?? false,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'text': text,
@@ -88,7 +108,7 @@ class SearchAnalytics {
   final String searchType;
   final Map<String, dynamic>? filters;
   final Duration? responseTime;
-  
+
   SearchAnalytics({
     required this.query,
     required this.timestamp,
@@ -97,7 +117,7 @@ class SearchAnalytics {
     this.filters,
     this.responseTime,
   });
-  
+
   Map<String, dynamic> toJson() {
     return {
       'query': query,

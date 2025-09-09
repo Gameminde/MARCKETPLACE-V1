@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../core/config/app_constants.dart';
@@ -54,11 +53,11 @@ class ParticleBackground extends StatefulWidget {
   }) {
     return ParticleBackground(
       key: key,
-      child: child,
       particleCount: particleCount ?? AppConstants.particleCount,
       enableSeasonalTheming: true,
       style: _getSeasonalStyle(seasonalTheme),
       customColors: _getSeasonalColors(seasonalTheme),
+      child: child,
     );
   }
 
@@ -70,12 +69,12 @@ class ParticleBackground extends StatefulWidget {
   }) {
     return ParticleBackground(
       key: key,
-      child: child,
       particleCount: particleCount,
       enableTouchInteraction: true,
       style: ParticleStyle.interactive,
       enableConnections: true,
       enableGlow: true,
+      child: child,
     );
   }
 
@@ -86,13 +85,13 @@ class ParticleBackground extends StatefulWidget {
   }) {
     return ParticleBackground(
       key: key,
-      child: child,
       particleCount: 15,
       particleSpeed: 0.3,
       particleSize: 1.5,
       style: ParticleStyle.floating,
       minOpacity: 0.05,
       maxOpacity: 0.2,
+      child: child,
     );
   }
 

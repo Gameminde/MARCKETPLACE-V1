@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import '../core/config/app_constants.dart';
 import '../services/xp_system.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
-import '../widgets/custom_app_bar.dart';
 
 /// Comprehensive gamification screen showing XP, badges, and leaderboards
 class GamificationScreen extends StatefulWidget {
@@ -395,7 +393,7 @@ class _GamificationScreenState extends State<GamificationScreen>
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
-            )).toList(),
+            )),
           ],
         ),
       ),
@@ -551,7 +549,7 @@ class _GamificationScreenState extends State<GamificationScreen>
               color: Colors.green.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.add,
               color: Colors.green,
               size: 16,
@@ -787,7 +785,7 @@ class _GamificationScreenState extends State<GamificationScreen>
             const SizedBox(height: AppConstants.spacingM),
             Row(
               children: [
-                Text('Rarity: '),
+                const Text('Rarity: '),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppConstants.spacingS,

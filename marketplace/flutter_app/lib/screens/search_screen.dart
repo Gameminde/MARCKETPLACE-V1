@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 
 import '../core/config/app_constants.dart';
-import '../models/product.dart';
 import '../models/category.dart';
 import '../providers/search_provider.dart';
 import '../widgets/glassmorphic_container.dart';
@@ -207,7 +206,7 @@ class _SearchScreenState extends State<SearchScreen>
                   size: 20,
                 ),
                 const SizedBox(width: AppConstants.spacingS),
-                Text('Filters'),
+                const Text('Filters'),
                 if (searchProvider.hasActiveFilters) ...[
                   const SizedBox(width: AppConstants.spacingS),
                   Container(
@@ -241,7 +240,7 @@ class _SearchScreenState extends State<SearchScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.sort,
                 size: 20,
               ),
@@ -386,7 +385,7 @@ class _SearchScreenState extends State<SearchScreen>
                 onPressed: () {
                   // Clear search history
                 },
-                child: Text('Clear All'),
+                child: const Text('Clear All'),
               ),
             ],
           ),
@@ -406,7 +405,7 @@ class _SearchScreenState extends State<SearchScreen>
                 _handleSearchChanged(query);
               },
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -634,7 +633,7 @@ class _SearchScreenState extends State<SearchScreen>
                     },
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         );
@@ -678,7 +677,7 @@ class _SearchScreenState extends State<SearchScreen>
                     Navigator.pop(context);
                   },
                 );
-              }).toList(),
+              }),
             ],
           ),
         );

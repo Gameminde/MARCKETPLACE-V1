@@ -32,7 +32,7 @@ class SearchService {
         params.addAll(_filtersToParams(filters));
       }
       
-      final uri = Uri.parse('${_baseUrl}${Environment.ApiEndpoints.productSearch}')
+      final uri = Uri.parse('$_baseUrl${Environment.ApiEndpoints.productSearch}')
           .replace(queryParameters: params);
       
       final response = await http.get(uri);
@@ -78,7 +78,7 @@ class SearchService {
       };
       
       final response = await http.post(
-        Uri.parse('${_baseUrl}${Environment.ApiEndpoints.aiSearch}'),
+        Uri.parse('$_baseUrl${Environment.ApiEndpoints.aiSearch}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
@@ -130,7 +130,7 @@ class SearchService {
   Future<SearchResult> barcodeSearch(String barcode) async {
     try {
       final response = await http.get(
-        Uri.parse('${_baseUrl}/search/barcode/$barcode'),
+        Uri.parse('$_baseUrl/search/barcode/$barcode'),
       );
       
       if (response.statusCode == 200) {
@@ -156,7 +156,7 @@ class SearchService {
   Future<List<SearchSuggestion>> getSuggestions(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('${_baseUrl}/search/suggestions?q=${Uri.encodeComponent(query)}'),
+        Uri.parse('$_baseUrl/search/suggestions?q=${Uri.encodeComponent(query)}'),
       );
       
       if (response.statusCode == 200) {
@@ -178,7 +178,7 @@ class SearchService {
   Future<List<String>> getPopularSearches() async {
     try {
       final response = await http.get(
-        Uri.parse('${_baseUrl}/search/popular'),
+        Uri.parse('$_baseUrl/search/popular'),
       );
       
       if (response.statusCode == 200) {
@@ -196,7 +196,7 @@ class SearchService {
   Future<List<String>> getTrendingSearches() async {
     try {
       final response = await http.get(
-        Uri.parse('${_baseUrl}/search/trending'),
+        Uri.parse('$_baseUrl/search/trending'),
       );
       
       if (response.statusCode == 200) {
@@ -214,7 +214,7 @@ class SearchService {
   Future<List<String>> getAiRecommendations() async {
     try {
       final response = await http.get(
-        Uri.parse('${_baseUrl}/search/ai-recommendations'),
+        Uri.parse('$_baseUrl/search/ai-recommendations'),
       );
       
       if (response.statusCode == 200) {
@@ -249,7 +249,7 @@ class SearchService {
   }) async {
     try {
       await http.post(
-        Uri.parse('${_baseUrl}${Environment.ApiEndpoints.trackEvent}'),
+        Uri.parse('$_baseUrl${Environment.ApiEndpoints.trackEvent}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'event': 'search',

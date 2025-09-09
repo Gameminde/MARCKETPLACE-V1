@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/notification.dart';
 import '../services/websocket_service.dart';
-import '../core/config/app_constants.dart';
 
 /// Notification service for managing push notifications and in-app notifications
 class NotificationService extends ChangeNotifier {

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/config/app_constants.dart';
 import '../models/category.dart';
-import '../models/product.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/category_section.dart';
 
 /// Comprehensive search filters component with multiple criteria
 class SearchFilters extends StatefulWidget {
@@ -492,7 +490,7 @@ class _SearchFiltersState extends State<SearchFilters>
               _notifyFiltersChanged();
             },
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -643,7 +641,7 @@ class _SearchFiltersState extends State<SearchFilters>
               }
             },
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -686,7 +684,7 @@ class _SearchFiltersState extends State<SearchFilters>
   
   void _resetFilters() {
     setState(() {
-      _filterData = SearchFilterData();
+      _filterData = const SearchFilterData();
     });
     widget.onResetFilters?.call();
     _notifyFiltersChanged();

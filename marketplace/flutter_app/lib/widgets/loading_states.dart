@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import '../core/config/app_constants.dart';
-import '../core/theme/app_theme.dart';
 import 'glassmorphic_container.dart';
 
 /// Comprehensive loading states widget collection with skeleton loaders,
@@ -520,7 +519,7 @@ class _SkeletonProductCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Image placeholder
-        _SkeletonBox(
+        const _SkeletonBox(
           width: double.infinity,
           height: AppConstants.productImageHeight,
           borderRadius: BorderRadius.only(

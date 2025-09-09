@@ -1,4 +1,3 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
 
 /// Configuration for golden tests in the marketplace application

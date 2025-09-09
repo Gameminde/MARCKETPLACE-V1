@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:ui';
 
 import '../core/config/app_constants.dart';
 import '../models/product.dart';
@@ -37,27 +35,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late PageController _imagePageController;
-  
+
   int _currentImageIndex = 0;
   int _selectedColorIndex = 0;
   int _selectedSizeIndex = 0;
   int _quantity = 1;
   bool _isAddingToCart = false;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _imagePageController = PageController();
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     _imagePageController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,8 +71,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             onPressed: widget.onWishlistTap,
             icon: Icon(
               widget.isWishlisted ? Icons.favorite : Icons.favorite_border,
-              color: widget.isWishlisted 
-                  ? Theme.of(context).colorScheme.error 
+              color: widget.isWishlisted
+                  ? Theme.of(context).colorScheme.error
                   : null,
             ),
           ),
@@ -87,12 +85,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             SliverToBoxAdapter(
               child: _buildImageGallery(context),
             ),
-            
+
             // Product info
             SliverToBoxAdapter(
               child: _buildProductInfo(context),
             ),
-            
+
             // Tabs for details, reviews, etc.
             SliverPersistentHeader(
               pinned: true,
@@ -100,7 +98,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 child: _buildTabBar(context),
               ),
             ),
-            
+
             // Tab content
             SliverFillRemaining(
               child: _buildTabContent(context),
@@ -111,19 +109,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       bottomNavigationBar: _buildBottomActions(context),
     );
   }
-  
+
   Widget _buildImageGallery(BuildContext context) {
-    final images = widget.product.images.isNotEmpty 
-        ? widget.product.images 
-        : [widget.product.imageUrl].where((e) => e != null).cast<String>().toList();
-    
+    final images = widget.product.images.isNotEmpty
+        ? widget.product.images
+        : [widget.product.imageUrl]
+            .where((e) => e != null)
+            .cast<String>()
+            .toList();
+
     if (images.isEmpty) {
       return _buildPlaceholderGallery(context);
     }
-    
+
     return Container(
       height: 400,
-      margin: const EdgeInsets.only(
+      margin: EdgeInsets.only(
         top: kToolbarHeight + MediaQuery.of(context).padding.top,
         left: AppConstants.spacingM,
         right: AppConstants.spacingM,
@@ -146,7 +147,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 },
               ),
             ),
-            
+
             // Navigation buttons
             if (images.length > 1) ...[
               _buildNavigationButton(
@@ -162,7 +163,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 isLeft: false,
               ),
             ],
-            
+
             // Image indicators
             if (images.length > 1)
               Positioned(
@@ -176,7 +177,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildImagePage(BuildContext context, String imageUrl) {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -199,11 +200,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildPlaceholderGallery(BuildContext context) {
     return Container(
       height: 400,
-      margin: const EdgeInsets.only(
+      margin: EdgeInsets.only(
         top: kToolbarHeight + MediaQuery.of(context).padding.top,
         left: AppConstants.spacingM,
         right: AppConstants.spacingM,
@@ -214,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildImagePlaceholder(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -227,7 +228,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildNavigationButton(
     BuildContext context,
     IconData icon,
@@ -250,7 +251,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildImageIndicators(BuildContext context, int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -269,7 +270,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       }),
     );
   }
-  
+
   Widget _buildProductInfo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -283,46 +284,45 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               Text(
                 widget.product.category,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w500,
-                ),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
               const SizedBox(height: AppConstants.spacingXS),
               Text(
                 widget.product.name,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-              
+
               const SizedBox(height: AppConstants.spacingM),
-              
+
               // Rating and reviews
-              if (widget.product.rating > 0)
-                _buildRatingSection(context),
-              
+              if (widget.product.rating > 0) _buildRatingSection(context),
+
               const SizedBox(height: AppConstants.spacingM),
-              
+
               // Price section
               _buildPriceSection(context),
-              
+
               const SizedBox(height: AppConstants.spacingL),
-              
+
               // Color selection
               if (widget.product.availableColors.isNotEmpty)
                 _buildColorSelection(context),
-              
+
               // Size selection
               if (widget.product.availableSizes.isNotEmpty)
                 _buildSizeSelection(context),
-              
+
               const SizedBox(height: AppConstants.spacingL),
-              
+
               // Quantity selector
               _buildQuantitySelector(context),
-              
+
               const SizedBox(height: AppConstants.spacingL),
-              
+
               // Stock status
               _buildStockStatus(context),
             ],
@@ -331,7 +331,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildRatingSection(BuildContext context) {
     return Row(
       children: [
@@ -360,41 +360,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         Text(
           '${widget.product.rating}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const SizedBox(width: AppConstants.spacingXS),
         Text(
           '(${widget.product.reviewCount} reviews)',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
       ],
     );
   }
-  
+
   Widget _buildPriceSection(BuildContext context) {
     return Row(
       children: [
-        if (widget.product.isOnSale && widget.product.originalPrice != null) ...[
+        if (widget.product.isOnSale &&
+            widget.product.originalPrice != null) ...[
           Text(
             '\$${widget.product.originalPrice!.toStringAsFixed(2)}',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              decoration: TextDecoration.lineThrough,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  decoration: TextDecoration.lineThrough,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           const SizedBox(width: AppConstants.spacingS),
         ],
         Text(
           '\$${widget.product.price.toStringAsFixed(2)}',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            color: widget.product.isOnSale
-                ? Theme.of(context).colorScheme.error
-                : Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
+                color: widget.product.isOnSale
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
         ),
         if (widget.product.isOnSale) ...[
           const SizedBox(width: AppConstants.spacingS),
@@ -410,16 +411,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             child: Text(
               '-${widget.product.discountPercentage!.round()}%',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onError,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Theme.of(context).colorScheme.onError,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
         ],
       ],
     );
   }
-  
+
   Widget _buildColorSelection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,8 +428,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         Text(
           'Color',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const SizedBox(height: AppConstants.spacingS),
         Wrap(
@@ -437,7 +438,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             final index = entry.key;
             final colorName = entry.value;
             final isSelected = index == _selectedColorIndex;
-            
+
             return GestureDetector(
               onTap: () => setState(() => _selectedColorIndex = index),
               child: Container(
@@ -461,7 +462,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ],
     );
   }
-  
+
   Widget _buildSizeSelection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,8 +470,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         Text(
           'Size',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const SizedBox(height: AppConstants.spacingS),
         Wrap(
@@ -479,7 +480,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             final index = entry.key;
             final size = entry.value;
             final isSelected = index == _selectedSizeIndex;
-            
+
             return GestureDetector(
               onTap: () => setState(() => _selectedSizeIndex = index),
               child: Container(
@@ -491,7 +492,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   color: isSelected
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                   border: Border.all(
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary
@@ -501,11 +503,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 child: Text(
                   size,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             );
@@ -515,21 +517,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ],
     );
   }
-  
+
   Widget _buildQuantitySelector(BuildContext context) {
     return Row(
       children: [
         Text(
           'Quantity',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const Spacer(),
         Row(
           children: [
             IconButton(
-              onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
+              onPressed:
+                  _quantity > 1 ? () => setState(() => _quantity--) : null,
               icon: const Icon(Icons.remove),
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
@@ -537,13 +540,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             ),
             Container(
               width: 60,
-              padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
               child: Text(
                 _quantity.toString(),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ),
             IconButton(
@@ -559,7 +563,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ],
     );
   }
-  
+
   Widget _buildStockStatus(BuildContext context) {
     return Row(
       children: [
@@ -574,16 +578,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         Text(
           widget.product.inStock ? 'In Stock' : 'Out of Stock',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: widget.product.inStock
-                ? Colors.green
-                : Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.w500,
-          ),
+                color: widget.product.inStock
+                    ? Colors.green
+                    : Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.w500,
+              ),
         ),
       ],
     );
   }
-  
+
   Widget _buildTabBar(BuildContext context) {
     return GlassmorphicContainer.navigation(
       child: TabBar(
@@ -596,7 +600,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildTabContent(BuildContext context) {
     return TabBarView(
       controller: _tabController,
@@ -607,7 +611,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ],
     );
   }
-  
+
   Widget _buildDetailsTab(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -620,15 +624,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               Text(
                 'Description',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: AppConstants.spacingM),
               Text(
                 widget.product.description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  height: 1.5,
-                ),
+                      height: 1.5,
+                    ),
               ),
             ],
           ),
@@ -636,7 +640,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildReviewsTab(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -651,8 +655,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   Text(
                     '${widget.product.rating}',
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(width: AppConstants.spacingM),
                   Column(
@@ -683,7 +687,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildShippingTab(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -696,8 +700,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               Text(
                 'Shipping Information',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: AppConstants.spacingM),
               Text(
@@ -715,7 +719,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildBottomActions(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
@@ -741,8 +745,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               onPressed: widget.onWishlistTap,
               icon: Icon(
                 widget.isWishlisted ? Icons.favorite : Icons.favorite_border,
-                color: widget.isWishlisted 
-                    ? Theme.of(context).colorScheme.error 
+                color: widget.isWishlisted
+                    ? Theme.of(context).colorScheme.error
                     : null,
               ),
               label: Text(widget.isWishlisted ? 'Remove' : 'Wishlist'),
@@ -775,7 +779,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
     );
   }
-  
+
   void _previousImage(int imageCount) {
     if (_currentImageIndex > 0) {
       _imagePageController.previousPage(
@@ -784,7 +788,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       );
     }
   }
-  
+
   void _nextImage(int imageCount) {
     if (_currentImageIndex < imageCount - 1) {
       _imagePageController.nextPage(
@@ -793,15 +797,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       );
     }
   }
-  
+
   Future<void> _handleAddToCart(BuildContext context) async {
     setState(() => _isAddingToCart = true);
-    
+
     // Simulate API call
     await Future.delayed(const Duration(milliseconds: 1000));
-    
+
     setState(() => _isAddingToCart = false);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -809,11 +813,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
           backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
-      
+
       widget.onAddToCart?.call();
     }
   }
-  
+
   Color _getColorFromName(String colorName) {
     switch (colorName.toLowerCase()) {
       case 'red':
@@ -843,7 +847,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         return Colors.grey;
     }
   }
-  
+
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'fashion':
@@ -869,20 +873,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 /// Sticky tab bar delegate
 class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
-  
+
   _StickyTabBarDelegate({required this.child});
-  
+
   @override
   double get minExtent => 50;
-  
+
   @override
   double get maxExtent => 50;
-  
+
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return child;
   }
-  
+
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
     return false;

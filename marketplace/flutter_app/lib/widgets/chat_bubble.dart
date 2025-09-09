@@ -428,7 +428,7 @@ class ChatBubble extends StatelessWidget {
             ),
           ),
         ),
-        Icon(Icons.download, size: 16),
+        const Icon(Icons.download, size: 16),
       ],
     );
   }

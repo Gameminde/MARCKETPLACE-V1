@@ -5,8 +5,6 @@ import 'dart:io';
 import '../core/config/app_constants.dart';
 import '../services/review_system.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/custom_app_bar.dart';
-import '../widgets/loading_states.dart';
 
 /// Comprehensive review display widget
 class ReviewWidget extends StatelessWidget {
@@ -371,7 +369,7 @@ class ReviewStatsWidget extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(width: AppConstants.spacingS),
-                            Icon(Icons.star, color: Colors.amber, size: 12),
+                            const Icon(Icons.star, color: Colors.amber, size: 12),
                             const SizedBox(width: AppConstants.spacingS),
                             Expanded(
                               child: LinearProgressIndicator(
@@ -488,8 +486,8 @@ class _ReviewSubmissionFormState extends State<ReviewSubmissionForm> {
   final _commentController = TextEditingController();
   
   ReviewRating _rating = ReviewRating.five;
-  List<File> _selectedImages = [];
-  List<File> _selectedVideos = [];
+  final List<File> _selectedImages = [];
+  final List<File> _selectedVideos = [];
   List<String> _selectedTags = [];
   
   final List<String> _availableTags = [
@@ -866,7 +864,7 @@ class ReviewListScreen extends StatefulWidget {
 }
 
 class _ReviewListScreenState extends State<ReviewListScreen> {
-  ReviewFilter _filter = const ReviewFilter();
+  final ReviewFilter _filter = const ReviewFilter();
 
   @override
   void initState() {
@@ -924,7 +922,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
                       ),
                       onReport: () => _reportReview(review),
                     ),
-                  )).toList(),
+                  )),
 
                 if (isLoading && reviews.isNotEmpty) ...[
                   const SizedBox(height: AppConstants.spacingM),

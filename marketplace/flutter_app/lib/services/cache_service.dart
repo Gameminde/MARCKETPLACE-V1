@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/config/app_constants.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 import '../models/cart_item.dart';

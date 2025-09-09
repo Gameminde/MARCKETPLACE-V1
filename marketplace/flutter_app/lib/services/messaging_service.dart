@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/message.dart';
 import '../services/websocket_service.dart';
-import '../core/config/app_constants.dart';
 
 /// Messaging service for chat functionality
 class MessagingService extends ChangeNotifier {
@@ -93,10 +92,8 @@ class MessagingService extends ChangeNotifier {
         orElse: () => throw StateError('Not found'),
       );
       
-      if (existingChat != null) {
-        return existingChat;
-      }
-    } catch (e) {
+      return existingChat;
+        } catch (e) {
       // Chat doesn't exist, create new one
     }
 
@@ -125,7 +122,7 @@ class MessagingService extends ChangeNotifier {
       _messageStreams[message.chatId]?.add(message);
 
       // Send via WebSocket
-      await _webSocketService.sendMessage(WebSocketMessage(
+      _webSocketService.sendMessage(WebSocketMessage(
         type: WebSocketMessageType.chat,
         data: {
           'action': 'send_message',
@@ -173,7 +170,7 @@ class MessagingService extends ChangeNotifier {
         await _cacheMessages(chatId);
 
         // Send read receipt via WebSocket
-        await _webSocketService.sendMessage(WebSocketMessage(
+        _webSocketService.sendMessage(WebSocketMessage(
           type: WebSocketMessageType.chat,
           data: {
             'action': 'mark_read',
@@ -189,7 +186,7 @@ class MessagingService extends ChangeNotifier {
   /// Start typing indicator
   Future<void> startTyping(String chatId) async {
     try {
-      await _webSocketService.sendMessage(WebSocketMessage(
+      _webSocketService.sendMessage(WebSocketMessage(
         type: WebSocketMessageType.chat,
         data: {
           'action': 'typing_start',
@@ -204,7 +201,7 @@ class MessagingService extends ChangeNotifier {
   /// Stop typing indicator
   Future<void> stopTyping(String chatId) async {
     try {
-      await _webSocketService.sendMessage(WebSocketMessage(
+      _webSocketService.sendMessage(WebSocketMessage(
         type: WebSocketMessageType.chat,
         data: {
           'action': 'typing_stop',
@@ -226,7 +223,7 @@ class MessagingService extends ChangeNotifier {
       await _cacheMessages(chatId);
 
       // Send delete request via WebSocket
-      await _webSocketService.sendMessage(WebSocketMessage(
+      _webSocketService.sendMessage(WebSocketMessage(
         type: WebSocketMessageType.chat,
         data: {
           'action': 'delete_message',

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../core/config/app_constants.dart';
 import '../models/user.dart';
-import '../models/order.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/glassmorphic_container.dart';

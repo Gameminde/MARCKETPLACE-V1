@@ -222,7 +222,7 @@ class _WishlistComponentState extends State<WishlistComponent> {
         ? widget.items.take(widget.maxItems!).toList()
         : widget.items;
     
-    return Container(
+    return SizedBox(
       height: 280,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -376,9 +376,9 @@ class _WishlistComponentState extends State<WishlistComponent> {
   }
   
   Widget _buildLoadingState(BuildContext context) {
-    return Container(
+    return const SizedBox(
       height: 200,
-      child: const Center(
+      child: Center(
         child: LoadingStates(
           type: LoadingType.spinner,
           size: LoadingSize.medium,

@@ -118,7 +118,7 @@ class GlassmorphicContainer extends StatelessWidget {
       key: key,
       style: GlassmorphicStyle.navigation,
       padding: padding,
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(AppConstants.navBarBorderRadius),
         topRight: Radius.circular(AppConstants.navBarBorderRadius),
       ),
@@ -279,7 +279,7 @@ class GlassmorphicContainer extends StatelessWidget {
         return {
           'blur': AppConstants.glassBlurRadius * 1.2,
           'opacity': isDark ? 0.2 : 0.3,
-          'borderRadius': BorderRadius.only(
+          'borderRadius': const BorderRadius.only(
             topLeft: Radius.circular(AppConstants.navBarBorderRadius),
             topRight: Radius.circular(AppConstants.navBarBorderRadius),
           ),

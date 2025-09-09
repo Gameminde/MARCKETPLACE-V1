@@ -70,7 +70,7 @@ void main() {
         rating: 4.2,
       );
 
-      final stars = product.ratingStars;
+      const stars = product.ratingStars;
       expect(stars.split('★').length - 1, equals(4)); // 4 full stars
       expect(stars.contains('☆'), isTrue); // Contains half/empty stars
     });
@@ -264,7 +264,7 @@ void main() {
           rating: 5.0,
         );
 
-        final stars = product.ratingStars;
+        const stars = product.ratingStars;
         expect(stars.split('★').length - 1, equals(5)); // 5 full stars
         expect(stars.contains('☆'), isFalse); // No empty stars
       });
@@ -279,7 +279,7 @@ void main() {
           rating: 0.0,
         );
 
-        final stars = product.ratingStars;
+        const stars = product.ratingStars;
         expect(stars.split('★').length - 1, equals(0)); // No full stars
         expect(stars.split('☆').length - 1, equals(5)); // 5 empty stars
       });

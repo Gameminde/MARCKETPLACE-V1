@@ -5,7 +5,6 @@ import '../core/config/app_constants.dart';
 import '../models/notification.dart';
 import '../services/notification_service.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
 
 /// Notification center screen
 class NotificationCenterScreen extends StatefulWidget {
@@ -19,7 +18,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  final String _searchQuery = '';
   NotificationType? _selectedType;
 
   @override
@@ -676,7 +675,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _settings = _settings.copyWith(typeSettings: newTypeSettings);
                 }),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

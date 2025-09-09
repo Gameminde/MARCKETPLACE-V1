@@ -6,7 +6,6 @@ import '../providers/auth_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/glassmorphic_container.dart';
 import '../widgets/particle_background.dart';
-import '../widgets/loading_states.dart';
 
 /// Comprehensive login screen with email/password and social login options
 class LoginScreen extends StatefulWidget {
@@ -151,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             borderRadius: BorderRadius.circular(AppConstants.borderRadius * 2),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.shopping_bag,
             size: 40,
             color: Colors.white,

@@ -16,7 +16,7 @@ class VoiceSearchDemoScreen extends StatefulWidget {
 
 class _VoiceSearchDemoScreenState extends State<VoiceSearchDemoScreen> {
   String? _lastSearchResult;
-  List<String> _searchHistory = [];
+  final List<String> _searchHistory = [];
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +183,7 @@ class _VoiceSearchDemoScreenState extends State<VoiceSearchDemoScreen> {
                               },
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),

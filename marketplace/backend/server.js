@@ -9,13 +9,16 @@ const hpp = require('hpp');
 const xssClean = require('xss-clean');
 const path = require('path');
 console.log('🔍 Loading .env file...');
-const result = require('dotenv').config({ path: './.env' });
+// Use absolute path for .env file
+const envPath = path.resolve(__dirname, '.env');
+const result = require('dotenv').config({ path: envPath });
 
 // CRITICAL SECURITY: No hardcoded secrets allowed
 if (result.error) {
   console.error('❌ CRITICAL: .env file is required for security');
   console.error('🔐 Run: npm run generate-secrets');
   console.error('📝 Then: cp .env.local .env');
+  console.error('📁 Looking for .env in:', envPath);
   process.exit(1);
 }
 

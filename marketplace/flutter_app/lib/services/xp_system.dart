@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-import '../core/config/app_constants.dart';
-import '../services/cache_service.dart';
 
 /// XP Action types that users can perform to earn points
 enum XPAction {
@@ -403,7 +400,7 @@ class XPSystem extends ChangeNotifier {
     
     // Mock leaderboard data
     return [
-      LeaderboardEntry(
+      const LeaderboardEntry(
         userId: 'user_1',
         username: 'ShopMaster2024',
         avatarUrl: 'https://example.com/avatar1.jpg',
@@ -411,7 +408,7 @@ class XPSystem extends ChangeNotifier {
         level: 8,
         rank: 1,
       ),
-      LeaderboardEntry(
+      const LeaderboardEntry(
         userId: 'user_2',
         username: 'DealHunter',
         avatarUrl: 'https://example.com/avatar2.jpg',

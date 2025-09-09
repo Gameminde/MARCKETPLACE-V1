@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 
@@ -247,19 +245,19 @@ class ABTestingService {
         isActive: true,
         trafficAllocation: 1.0,
         variants: {
-          'control': ABTestVariant(
+          'control': const ABTestVariant(
             name: 'control',
             allocation: 0.5,
             config: {'layout': 'single_page'},
           ),
-          'multi_step': ABTestVariant(
+          'multi_step': const ABTestVariant(
             name: 'multi_step',
             allocation: 0.5,
             config: {'layout': 'multi_step', 'steps': 3},
           ),
         },
         targetingRules: [
-          TargetingRule(
+          const TargetingRule(
             attribute: 'platform',
             operator: TargetingOperator.equals,
             value: 'mobile',
@@ -276,17 +274,17 @@ class ABTestingService {
         isActive: true,
         trafficAllocation: 0.8,
         variants: {
-          'control': ABTestVariant(
+          'control': const ABTestVariant(
             name: 'control',
             allocation: 0.33,
             config: {'design': 'standard'},
           ),
-          'compact': ABTestVariant(
+          'compact': const ABTestVariant(
             name: 'compact',
             allocation: 0.33,
             config: {'design': 'compact', 'show_rating': false},
           ),
-          'detailed': ABTestVariant(
+          'detailed': const ABTestVariant(
             name: 'detailed',
             allocation: 0.34,
             config: {'design': 'detailed', 'show_description': true},
@@ -303,19 +301,19 @@ class ABTestingService {
         isActive: true,
         trafficAllocation: 0.6,
         variants: {
-          'control': ABTestVariant(
+          'control': const ABTestVariant(
             name: 'control',
             allocation: 0.5,
             config: {'steps': 5, 'skip_allowed': true},
           ),
-          'simplified': ABTestVariant(
+          'simplified': const ABTestVariant(
             name: 'simplified',
             allocation: 0.5,
             config: {'steps': 3, 'skip_allowed': false},
           ),
         },
         targetingRules: [
-          TargetingRule(
+          const TargetingRule(
             attribute: 'is_new_user',
             operator: TargetingOperator.equals,
             value: true,

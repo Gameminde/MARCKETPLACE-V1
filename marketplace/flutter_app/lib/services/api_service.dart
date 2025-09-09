@@ -9,7 +9,6 @@ import '../models/cart_item.dart';
 import '../models/order.dart';
 import '../models/address.dart';
 import '../models/payment_method.dart';
-import '../models/search_result.dart';
 
 /// Comprehensive API service for all marketplace REST endpoints
 /// Handles authentication, products, orders, users, search, and more
@@ -986,7 +985,7 @@ class ApiService {
       for (int i = 0; i < files.length; i++) {
         final file = files[i];
         final multipartFile = await http.MultipartFile.fromPath(
-          files.length == 1 ? fieldName : '${fieldName}[$i]',
+          files.length == 1 ? fieldName : '$fieldName[$i]',
           file.path,
         );
         request.files.add(multipartFile);

@@ -5,8 +5,6 @@ import '../core/config/app_constants.dart';
 import '../models/message.dart';
 import '../services/messaging_service.dart';
 import '../widgets/glassmorphic_container.dart';
-import '../widgets/loading_states.dart';
-import '../widgets/custom_app_bar.dart';
 import 'chat_screen.dart';
 
 /// Main messaging screen showing chat list
@@ -21,7 +19,7 @@ class _MessagingScreenState extends State<MessagingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  final String _searchQuery = '';
 
   @override
   void initState() {

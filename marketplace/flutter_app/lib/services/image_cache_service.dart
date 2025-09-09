@@ -1,16 +1,12 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
-import '../core/config/app_constants.dart';
-import 'cache_service.dart';
 
 /// Image cache configuration
 class ImageCacheConfig {
