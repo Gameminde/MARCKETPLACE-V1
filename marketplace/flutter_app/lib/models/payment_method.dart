@@ -98,13 +98,13 @@ class MockPaymentMethods {
       id: 'pm_2',
       name: 'Apple Pay',
       type: PaymentType.applePay,
-      icon: Icons.apple,
+      icon: Icons.language,
     ),
     const PaymentMethod(
       id: 'pm_3',
       name: 'Google Pay',
       type: PaymentType.googlePay,
-      icon: Icons.google,
+      icon: Icons.language,
     ),
   ];
 }

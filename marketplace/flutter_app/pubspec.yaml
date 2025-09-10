@@ -51,7 +51,7 @@ dependencies:
   # Localization
   flutter_localizations:
     sdk: flutter
-  intl: ^0.18.1
+  intl: ^0.20.2
   
   # Utilities & Helpers
   uuid: ^4.5.1

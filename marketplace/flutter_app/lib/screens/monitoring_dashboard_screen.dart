@@ -64,7 +64,7 @@ class _MonitoringDashboardScreenState extends State<MonitoringDashboardScreen>
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -431,7 +431,7 @@ class _MonitoringDashboardScreenState extends State<MonitoringDashboardScreen>
                   child: _buildMetricCard(
                     'This Week',
                     stats.crashesThisWeek.toString(),
-                    Icons.calendar_week,
+                    Icons.calendar_today,
                     Colors.blue,
                   ),
                 ),

@@ -150,7 +150,7 @@ class _CartScreenState extends State<CartScreen>
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                                   Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                                 ],
                                 begin: Alignment.topLeft,

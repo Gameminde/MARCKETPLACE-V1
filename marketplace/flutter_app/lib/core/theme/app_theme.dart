@@ -148,8 +148,8 @@ class AppTheme {
         ),
       ),
       // Glassmorphic card theme
-      cardTheme: CardTheme(
-        color: colorScheme.surface.withOpacity(0.8),
+      cardTheme: CardThemeData(
+        color: colorScheme.surface.withValues(alpha: 0.8),
         elevation: 0,
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -164,7 +164,7 @@ class AppTheme {
       // Enhanced input decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surface.withOpacity(0.5),
+        fillColor: colorScheme.surface.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.inputBorderRadius),
           borderSide: BorderSide(color: colorScheme.outline),
@@ -196,7 +196,7 @@ class AppTheme {
       ),
       // Glassmorphic bottom navigation
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: colorScheme.surface.withOpacity(0.9),
+        backgroundColor: colorScheme.surface.withValues(alpha: 0.9),
         selectedItemColor: colorScheme.primary,
         unselectedItemColor: colorScheme.onSurfaceVariant,
         type: BottomNavigationBarType.fixed,
@@ -217,13 +217,13 @@ class AppTheme {
       
       // Navigation bar (Material 3)
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: colorScheme.surface.withOpacity(0.9),
-        indicatorColor: colorScheme.primary.withOpacity(0.1),
-        iconTheme: MaterialStatePropertyAll(
+        backgroundColor: colorScheme.surface.withValues(alpha: 0.9),
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.1),
+        iconTheme: WidgetStatePropertyAll(
           IconThemeData(color: colorScheme.onSurfaceVariant),
         ),
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return TextStyle(
               color: colorScheme.primary,
               fontSize: AppConstants.textSizeXS,
@@ -259,14 +259,14 @@ class AppTheme {
       ),
       
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return colorScheme.primary;
           }
           return colorScheme.outline;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return colorScheme.primary.withOpacity(0.5);
           }
           return colorScheme.surfaceVariant;
@@ -319,7 +319,7 @@ class AppTheme {
       ),
       
       // Dark glassmorphic cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: colorScheme.surface.withOpacity(0.3),
         elevation: 0,
         shadowColor: Colors.transparent,

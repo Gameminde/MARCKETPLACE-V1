@@ -151,7 +151,7 @@ class WebSocketService {
     _stopReconnectTimer();
     
     await _channelSubscription?.cancel();
-    await _channel?.sink.close(status.goingAway);
+    await _channel?.sink.close(1001);
     
     _channel = null;
     _channelSubscription = null;

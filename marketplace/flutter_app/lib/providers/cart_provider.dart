@@ -11,11 +11,15 @@ class CartProvider extends ChangeNotifier {
 
   // Getters
   List<CartItem> get cartItems => _cartItems;
+  // Legacy aliases expected by some screens
+  List<CartItem> get items => _cartItems;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   int get itemCount => _cartItems.fold(0, (sum, item) => sum + item.quantity);
   double get totalAmount =>
       _cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+  // Legacy alias
+  double get totalPrice => totalAmount;
   bool get isEmpty => _cartItems.isEmpty;
   bool get isNotEmpty => _cartItems.isNotEmpty;
 

@@ -122,13 +122,15 @@ class MessagingService extends ChangeNotifier {
       _messageStreams[message.chatId]?.add(message);
 
       // Send via WebSocket
-      _webSocketService.sendMessage(WebSocketMessage(
-        type: WebSocketMessageType.chat,
+      _webSocketService.sendMessage(
+        type: WebSocketMessageType.chatMessage,
         data: {
-          'action': 'send_message',
-          'message': message.toJson(),
+          'conversation_id': message.chatId,
+          'content': message.content,
+          'metadata': {},
         },
-      ));
+        channel: 'chat_${message.chatId}',
+      );
 
       // Update message status to sent
       final updatedMessage = message.copyWith(status: MessageStatus.sent);
@@ -170,13 +172,10 @@ class MessagingService extends ChangeNotifier {
         await _cacheMessages(chatId);
 
         // Send read receipt via WebSocket
-        _webSocketService.sendMessage(WebSocketMessage(
-          type: WebSocketMessageType.chat,
-          data: {
-            'action': 'mark_read',
-            'chat_id': chatId,
-          },
-        ));
+        _webSocketService.markMessagesRead(
+          conversationId: chatId,
+          messageIds: messages.map((m) => m.id).toList(),
+        );
       }
     } catch (e) {
       debugPrint('Error marking messages as read: $e');
@@ -186,13 +185,10 @@ class MessagingService extends ChangeNotifier {
   /// Start typing indicator
   Future<void> startTyping(String chatId) async {
     try {
-      _webSocketService.sendMessage(WebSocketMessage(
-        type: WebSocketMessageType.chat,
-        data: {
-          'action': 'typing_start',
-          'chat_id': chatId,
-        },
-      ));
+      _webSocketService.sendTypingIndicator(
+        conversationId: chatId,
+        isTyping: true,
+      );
     } catch (e) {
       debugPrint('Error starting typing: $e');
     }
@@ -201,13 +197,10 @@ class MessagingService extends ChangeNotifier {
   /// Stop typing indicator
   Future<void> stopTyping(String chatId) async {
     try {
-      _webSocketService.sendMessage(WebSocketMessage(
-        type: WebSocketMessageType.chat,
-        data: {
-          'action': 'typing_stop',
-          'chat_id': chatId,
-        },
-      ));
+      _webSocketService.sendTypingIndicator(
+        conversationId: chatId,
+        isTyping: false,
+      );
     } catch (e) {
       debugPrint('Error stopping typing: $e');
     }
@@ -223,14 +216,15 @@ class MessagingService extends ChangeNotifier {
       await _cacheMessages(chatId);
 
       // Send delete request via WebSocket
-      _webSocketService.sendMessage(WebSocketMessage(
-        type: WebSocketMessageType.chat,
+      _webSocketService.sendMessage(
+        type: WebSocketMessageType.chatMessage,
         data: {
           'action': 'delete_message',
           'message_id': messageId,
           'chat_id': chatId,
         },
-      ));
+        channel: 'chat_$chatId',
+      );
 
       return true;
     } catch (e) {
