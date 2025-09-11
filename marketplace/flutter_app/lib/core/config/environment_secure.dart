@@ -12,14 +12,19 @@ class EnvironmentSecure {
 
     _environment = environment;
 
-    try {
-      await dotenv.load(fileName: '.env.$environment');
-      _initialized = true;
-    } catch (e) {
-      // Fallback to development if .env file not found
-      print('Warning: .env.$environment not found, using defaults');
-      _initialized = true;
-    }
+    // Temporarily skip loading .env file to avoid blocking
+    print('Using default environment values');
+    _initialized = true;
+    
+    // Commented out for debugging
+    // try {
+    //   await dotenv.load(fileName: '.env.$environment');
+    //   _initialized = true;
+    // } catch (e) {
+    //   // Fallback to development if .env file not found
+    //   print('Warning: .env.$environment not found, using defaults');
+    //   _initialized = true;
+    // }
   }
 
   // Environment detection

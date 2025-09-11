@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/product.dart';
 import '../models/search_result.dart';
 import '../services/product_api_service.dart';
+// MockProducts est défini dans product.dart, pas besoin d'import supplémentaire
 
 /// Product Provider for managing product state
 class ProductProvider extends ChangeNotifier {
@@ -120,6 +121,10 @@ class ProductProvider extends ChangeNotifier {
       _currentPage++;
     } catch (e) {
       _setError('Failed to load products: ${e.toString()}');
+      // Utiliser les données mockées en cas d'échec
+      if (_products.isEmpty) {
+        _products = MockProducts.trendingProducts;
+      }
     } finally {
       _setLoading(false);
     }
@@ -163,6 +168,9 @@ class ProductProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Failed to load trending products: $e');
+      // Utiliser les données mockées en cas d'échec
+      _trendingProducts = MockProducts.trendingProducts;
+      notifyListeners();
     }
   }
 
@@ -205,6 +213,14 @@ class ProductProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Failed to load categories: $e');
+      // Utiliser des catégories par défaut en cas d'échec
+      _categories = [
+        {'id': '1', 'name': 'Chaussures'},
+        {'id': '2', 'name': 'Vêtements'},
+        {'id': '3', 'name': 'Accessoires'},
+        {'id': '4', 'name': 'Électronique'}
+      ];
+      notifyListeners();
     }
   }
 
@@ -215,6 +231,15 @@ class ProductProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Failed to load brands: $e');
+      // Utiliser des marques par défaut en cas d'échec
+      _brands = [
+        {'id': '1', 'name': 'Nike'},
+        {'id': '2', 'name': 'Adidas'},
+        {'id': '3', 'name': 'Puma'},
+        {'id': '4', 'name': 'Samsung'},
+        {'id': '5', 'name': 'Apple'}
+      ];
+      notifyListeners();
     }
   }
 

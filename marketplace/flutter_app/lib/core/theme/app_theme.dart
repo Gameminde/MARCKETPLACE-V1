@@ -148,7 +148,7 @@ class AppTheme {
         ),
       ),
       // Glassmorphic card theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
         shadowColor: Colors.transparent,
@@ -319,7 +319,7 @@ class AppTheme {
       ),
       
       // Dark glassmorphic cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: colorScheme.surface.withOpacity(0.3),
         elevation: 0,
         shadowColor: Colors.transparent,

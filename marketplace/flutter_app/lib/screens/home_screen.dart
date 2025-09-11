@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/product.dart';
+import '../providers/product_provider.dart';
 import 'product_detail_screen.dart';
 
 /// Home screen with marketplace design matching reference images
@@ -63,10 +65,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    final product = MockProducts.trendingProducts[index];
+                    // Utiliser les données du ProductProvider avec fallback sur MockProducts
+                    final productProvider = Provider.of<ProductProvider>(context);
+                    final products = productProvider.trendingProducts.isNotEmpty
+                        ? productProvider.trendingProducts
+                        : MockProducts.trendingProducts;
+                    final product = products[index];
                     return _buildProductCard(context, product);
                   },
-                  childCount: MockProducts.trendingProducts.length,
+                  childCount: Provider.of<ProductProvider>(context).trendingProducts.isNotEmpty
+                      ? Provider.of<ProductProvider>(context).trendingProducts.length
+                      : MockProducts.trendingProducts.length,
                 ),
               ),
             ),
