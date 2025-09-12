@@ -23,6 +23,9 @@ class User {
   final DateTime? lastLoginAt;
   final Map<String, dynamic>? preferences;
   final Map<String, dynamic>? metadata;
+  final String? profilePictureUrl;
+  final bool isTwoFactorEnabled;
+  final String? membershipTier;
 
   User({
     required this.id,
@@ -40,6 +43,9 @@ class User {
     this.lastLoginAt,
     this.preferences,
     this.metadata,
+    this.profilePictureUrl,
+    this.isTwoFactorEnabled = false,
+    this.membershipTier,
   });
 
   /// Get user's full name
@@ -50,6 +56,7 @@ class User {
     final name = fullName.trim();
     return name.isNotEmpty ? name : email;
   }
+
 
   /// Get user's initials for avatar
   String get initials {
@@ -86,6 +93,9 @@ class User {
     DateTime? lastLoginAt,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? metadata,
+    String? profilePictureUrl,
+    bool? isTwoFactorEnabled,
+    String? membershipTier,
   }) {
     return User(
       id: id ?? this.id,
@@ -103,6 +113,9 @@ class User {
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
       preferences: preferences ?? this.preferences,
       metadata: metadata ?? this.metadata,
+      profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
+      isTwoFactorEnabled: isTwoFactorEnabled ?? this.isTwoFactorEnabled,
+      membershipTier: membershipTier ?? this.membershipTier,
     );
   }
 
@@ -124,6 +137,9 @@ class User {
       'lastLoginAt': lastLoginAt?.toIso8601String(),
       'preferences': preferences,
       'metadata': metadata,
+      'profilePictureUrl': profilePictureUrl,
+      'isTwoFactorEnabled': isTwoFactorEnabled,
+      'membershipTier': membershipTier,
     };
   }
 
@@ -150,6 +166,9 @@ class User {
           : null,
       preferences: json['preferences'] as Map<String, dynamic>?,
       metadata: json['metadata'] as Map<String, dynamic>?,
+      profilePictureUrl: json['profilePictureUrl'] as String?,
+      isTwoFactorEnabled: json['isTwoFactorEnabled'] as bool? ?? false,
+      membershipTier: json['membershipTier'] as String?,
     );
   }
 
