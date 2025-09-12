@@ -6,6 +6,11 @@ import 'package:marketplace_app/providers/auth_provider.dart';
 import 'package:marketplace_app/providers/cart_provider.dart';
 import 'package:marketplace_app/providers/search_provider.dart';
 
+// Missing widget imports
+import 'package:marketplace_app/widgets/product_card.dart';
+// Note: CartItem is a model, not a widget
+// Note: OrderCard and ChatCard widgets don't exist yet
+
 /// Integration tests for critical user flows in the marketplace app
 /// 
 /// These tests simulate real user interactions and verify that the entire

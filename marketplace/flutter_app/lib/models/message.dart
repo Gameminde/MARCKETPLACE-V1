@@ -549,7 +549,7 @@ class ChatRoom {
             avatarUrl: 'https://example.com/fashion_avatar.jpg',
             role: 'seller',
             isOnline: false,
-            lastSeen: DateTime.now().subtract(Duration(hours: 1)),
+            lastSeen: DateTime(2023, 1, 1, 12, 0), // Fixed date for const constructor
           ),
         ],
         lastMessage: Message.text(
