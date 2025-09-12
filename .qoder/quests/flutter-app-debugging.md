@@ -2,14 +2,17 @@
 
 ## Overview
 
-This document outlines the systematic approach to resolve critical issues in the Flutter marketplace application that prevent it from building and running successfully. Based on the analysis of the codebase and error reports, the main problems identified include:
+This document outlines the systematic approach to resolve critical issues in the Flutter marketplace application that prevent it from building and running successfully. Based on the analysis of the codebase and error reports in `reccc.md`, the main problems identified include:
 
 1. Incorrect import paths in test files (specifically `integration_test/app_test.dart`)
 2. Android configuration mismatches that cause MainActivity class not found errors
 3. Missing dependencies and components that cause compilation errors
 4. Undefined classes and methods preventing successful builds
+5. Const constructor issues in model files
+6. Missing icon in payment methods
+7. Finder operator issues in tests
 
-The solution involves fixing import paths, correcting Android configuration, implementing missing components, and ensuring all dependencies are properly configured. The current codebase shows significant progress with most components already implemented, but there are critical issues in the test files and some Android configuration that need to be addressed.
+The solution involves fixing import paths, correcting Android configuration, implementing missing components, and ensuring all dependencies are properly configured. The current codebase shows significant progress with most components already implemented, but there are critical issues in the test files and some model files that need to be addressed.
 
 ## Architecture
 
@@ -387,24 +390,34 @@ void main() {
    - Package declaration is already `package com.marketplace.algeria`
    - Extends FlutterActivity correctly
 
-### Phase 2: Import Path Correction (Estimated: 30 minutes)
+### Phase 2: Import Path Correction (Estimated: 45 minutes)
 1. Fix incorrect imports in `integration_test/app_test.dart`:
    - Replace `package:marketplace/main.dart` with `package:marketplace_app/main.dart`
    - Replace `package:marketplace/providers/auth_provider.dart` with `package:marketplace_app/providers/auth_provider.dart`
    - Replace `package:marketplace/providers/cart_provider.dart` with `package:marketplace_app/providers/cart_provider.dart`
    - Replace `package:marketplace/providers/search_provider.dart` with `package:marketplace_app/providers/search_provider.dart`
 
-2. Verify undefined identifiers in test files:
+2. Add missing imports for widgets and models in `integration_test/app_test.dart`:
+   - Add `import 'package:marketplace_app/widgets/product_card.dart';`
+   - Add `import 'package:marketplace_app/widgets/order_card.dart';`
+   - Add `import 'package:marketplace_app/widgets/chat_card.dart';`
+   - Add `import 'package:marketplace_app/models/cart_item.dart';`
+
+3. Fix undefined identifiers in test files:
    - Fix `ProductCard` undefined error by ensuring correct import
    - Fix `CartItem` undefined error by ensuring correct import
    - Fix `OrderCard` undefined error by ensuring correct import
    - Fix `ChatCard` undefined error by ensuring correct import
 
-3. Validate all imports:
+4. Fix finder operator issues:
+   - Replace `find.textContaining('network') | find.textContaining('connection') | find.textContaining('error')` 
+     with proper finder combination using `find.byWidgetPredicate` or separate assertions
+
+5. Validate all imports:
    - Run `flutter analyze` to check for remaining import errors
    - Fix any additional import issues discovered
 
-### Phase 3: Component Fixes (Estimated: 60 minutes)
+### Phase 3: Component Fixes (Estimated: 75 minutes)
 1. Fix const constructor issues in models:
    - Fix `message.dart` line 552: Remove `const` from `DateTime.now().subtract(Duration(hours: 1))`
    - Fix `order.dart` line 157: Fix const constructor issues with CartItem in MockOrders
