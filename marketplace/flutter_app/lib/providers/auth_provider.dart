@@ -146,6 +146,59 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Sign in with email and password (alias for login)
+  Future<bool> signInWithEmailAndPassword(String email, String password,
+      {bool rememberMe = false}) async {
+    return login(email, password, rememberMe: rememberMe);
+  }
+
+  /// Sign in with Google
+  Future<bool> signInWithGoogle() async {
+    return socialLogin('google');
+  }
+
+  /// Sign in with Apple
+  Future<bool> signInWithApple() async {
+    return socialLogin('apple');
+  }
+
+  /// Sign in with Facebook
+  Future<bool> signInWithFacebook() async {
+    return socialLogin('facebook');
+  }
+
+  /// Sign out (alias for logout)
+  Future<void> signOut({bool clearRememberedUser = false}) async {
+    return logout(clearRememberedUser: clearRememberedUser);
+  }
+
+  /// Continue as guest
+  Future<bool> continueAsGuest() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Create a guest user
+      _currentUser = User(
+        id: 'guest_${DateTime.now().millisecondsSinceEpoch}',
+        email: 'guest@marketplace.algeria',
+        firstName: 'Guest',
+        lastName: 'User',
+        role: UserRole.buyer,
+        createdAt: DateTime.now(),
+        isEmailVerified: false,
+      );
+      
+      _setAuthState(AuthState.authenticated);
+      return true;
+    } catch (e) {
+      _setError('Failed to continue as guest: $e');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   /// Login with email and password
   Future<bool> login(String email, String password,
       {bool rememberMe = false}) async {
