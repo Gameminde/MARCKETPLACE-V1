@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:marketplace/services/messaging_service.dart';
-import 'package:marketplace/models/message.dart';
+import '../../lib/services/messaging_service.dart';
+import '../../lib/models/message.dart';
 
 void main() {
   group('MessagingService Tests', () {

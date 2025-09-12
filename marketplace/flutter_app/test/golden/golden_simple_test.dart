@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:marketplace/widgets/product_card.dart';
-import 'package:marketplace/widgets/glassmorphic_container.dart';
-import 'package:marketplace/widgets/loading_states.dart';
-import 'package:marketplace/providers/cart_provider.dart';
-import 'package:marketplace/providers/auth_provider.dart';
-import 'package:marketplace/providers/search_provider.dart';
-import 'package:marketplace/models/product.dart';
-import 'package:marketplace/core/theme/app_theme.dart';
+import '../../lib/widgets/product_card.dart';
+import '../../lib/widgets/glassmorphic_container.dart';
+import '../../lib/widgets/loading_states.dart';
+import '../../lib/providers/cart_provider.dart';
+import '../../lib/providers/auth_provider_secure.dart';
+import '../../lib/providers/search_provider.dart';
+import '../../lib/models/product.dart';
+import '../../lib/core/theme/algeria_theme.dart';
 
 /// Simplified Golden tests for visual regression testing
 /// 
@@ -340,7 +340,7 @@ void main() {
     group('Responsive Design', () {
       testWidgets('ProductCard - mobile size', (tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(375, 667); // iPhone SE
-        tester.binding.window.devicePixelRatioTestValue = 2.0;
+        tester.view.devicePixelRatio = 2.0;
         
         await tester.pumpWidget(
           createTestableWidget(
@@ -367,7 +367,7 @@ void main() {
 
       testWidgets('ProductCard - tablet size', (tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(768, 1024); // iPad
-        tester.binding.window.devicePixelRatioTestValue = 2.0;
+        tester.view.devicePixelRatio = 2.0;
         
         await tester.pumpWidget(
           createTestableWidget(

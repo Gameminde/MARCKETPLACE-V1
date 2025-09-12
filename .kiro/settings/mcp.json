@@ -1,0 +1,165 @@
+{
+  "mcpServers": {
+    "fetch": {
+      "command": "uvx",
+      "args": [
+        "@modelcontextprotocol/server-fetch"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": []
+    },
+    "filesystem": {
+      "command": "uvx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "save_images",
+        "read_product_assets",
+        "clear_cache"
+      ]
+    },
+    "memory": {
+      "command": "uvx",
+      "args": [
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "PERSISTENCE_BACKEND": "sqlite"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "store_user_pref",
+        "get_user_profile"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "uvx",
+      "args": [
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "checkout_flow",
+        "abandon_cart_recovery"
+      ]
+    },
+    "time": {
+      "command": "uvx",
+      "args": [
+        "@modelcontextprotocol/server-time"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": []
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "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",
+        "REPO": "Gameminde/MARCKETPLACE-V1"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "create_issue",
+        "list_pull_requests",
+        "review_code"
+      ]
+    },
+    "algolia": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-algolia"
+      ],
+      "env": {
+        "ALGOLIA_APP_ID": "LWCMCGT5XD",
+        "ALGOLIA_API_KEY": "365600ffe5a1713d4a497f459d2e1db2",
+        "INDEX": "products"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "search_products",
+        "reindex_products"
+      ]
+    },
+    "apify": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@community/apify-mcp"
+      ],
+      "env": {
+        "APIFY_TOKEN": "apify_api_lKq3iaqmryF7hNA6ZTzEblxijXa79h0jxfo0"
+      },
+      "disabled": true,
+      "autoApprove": []
+    },
+    "payments-stripe": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@community/stripe-mcp"
+      ],
+      "env": {
+        "STRIPE_SECRET": "sk_live_xxx"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "create_payment_intent",
+        "refund_payment"
+      ]
+    },
+    "payments-antom": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@community/antom-mcp"
+      ],
+      "env": {
+        "ANTOM_KEY": "your_antom_key"
+      },
+      "disabled": true,
+      "autoApprove": []
+    },
+    "agentops": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-agentops"
+      ],
+      "env": {
+        "AGENTOPS_API_KEY": "4b746ba4-30fd-42a9-84a3-893b26562949"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "trace_action",
+        "report_error"
+      ]
+    },
+    "performance-monitor": {
+      "command": "node",
+      "args": [
+        "marketplace/mcp-servers/performance-monitor/dist/index.js"
+      ],
+      "env": {
+        "TARGET_FPS": "60",
+        "MAX_COLD_START": "3000",
+        "MAX_API_RESPONSE": "500"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "analyze_flutter_performance",
+        "check_build_size",
+        "validate_animations",
+        "memory_usage_analysis"
+      ]
+    }
+  }
+}

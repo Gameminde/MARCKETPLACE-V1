@@ -33,7 +33,7 @@ class GoldenTestUtils {
     double devicePixelRatio = 2.0,
   }) {
     tester.binding.window.physicalSizeTestValue = size;
-    tester.binding.window.devicePixelRatioTestValue = devicePixelRatio;
+    tester.view.devicePixelRatio = devicePixelRatio;
   }
 
   /// Clean up device size settings

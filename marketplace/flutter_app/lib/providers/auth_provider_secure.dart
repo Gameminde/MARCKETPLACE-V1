@@ -17,13 +17,7 @@ enum AuthState {
   passwordResetRequired,
 }
 
-/// User roles
-enum UserRole {
-  buyer,
-  seller,
-  admin,
-  moderator,
-}
+
 
 /// Secure Authentication Provider with proper security practices
 class AuthProvider extends ChangeNotifier {
@@ -364,6 +358,71 @@ class AuthProvider extends ChangeNotifier {
       return success;
     } catch (e) {
       _setError('Failed to change password: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign in with email and password (alias for login)
+  Future<bool> signInWithEmailAndPassword(String email, String password) async {
+    return await login(email, password);
+  }
+
+  /// Sign in with Google
+  Future<bool> signInWithGoogle() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final response = await _authService.socialLogin(
+        provider: 'google',
+        token: '', // Token will be obtained by the auth service
+      );
+
+      if (response.success && response.accessToken != null) {
+        await _handleSuccessfulAuth(response);
+        return true;
+      } else {
+        _setError(response.message ?? 'Google sign in failed');
+        return false;
+      }
+    } catch (e) {
+      _setError('Google sign in failed: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign out (alias for logout)
+  Future<void> signOut() async {
+    await logout();
+  }
+
+  /// Continue as guest
+  Future<bool> continueAsGuest() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Create a guest user
+      _currentUser = User(
+        id: 'guest_${DateTime.now().millisecondsSinceEpoch}',
+        email: 'guest@marketplace.algeria',
+        firstName: 'Guest',
+        lastName: 'User',
+        role: UserRole.buyer,
+        displayName: 'Guest User',
+        isEmailVerified: false,
+        isMfaEnabled: false,
+        isTwoFactorEnabled: false,
+      );
+
+      _setAuthState(AuthState.authenticated);
+      return true;
+    } catch (e) {
+      _setError('Failed to continue as guest: ${e.toString()}');
       return false;
     } finally {
       _setLoading(false);

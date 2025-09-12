@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:marketplace/providers/cart_provider.dart';
-import 'package:marketplace/models/product.dart';
+import '../../lib/providers/cart_provider.dart';
+import '../../lib/models/product.dart';
 
 void main() {
   group('CartProvider Tests', () {

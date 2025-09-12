@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:marketplace/services/notification_service.dart';
-import 'package:marketplace/models/notification.dart';
+import '../../lib/services/notification_service.dart';
+import '../../lib/models/notification.dart';
 
 void main() {
   group('NotificationService Tests', () {

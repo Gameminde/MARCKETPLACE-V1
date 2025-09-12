@@ -1,6 +1,10 @@
+import '../models/product.dart';
+
 /// Enhanced model for cart items with vendor support and inventory tracking
 class CartItem {
   final String id;
+  final String? productId; // Reference to the original product
+  final Product? product; // Full product object for convenience
   final String name;
   final double price;
   int quantity;
@@ -19,6 +23,8 @@ class CartItem {
 
   CartItem({
     required this.id,
+    this.productId,
+    this.product,
     required this.name,
     required this.price,
     this.quantity = 1,
@@ -59,6 +65,8 @@ class CartItem {
   /// Copy with modifications
   CartItem copyWith({
     String? id,
+    String? productId,
+    Product? product,
     String? name,
     double? price,
     int? quantity,
@@ -77,6 +85,8 @@ class CartItem {
   }) {
     return CartItem(
       id: id ?? this.id,
+      productId: productId ?? this.productId,
+      product: product ?? this.product,
       name: name ?? this.name,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
@@ -99,6 +109,8 @@ class CartItem {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'productId': productId,
+      'product': product?.toJson(),
       'name': name,
       'price': price,
       'quantity': quantity,
@@ -121,6 +133,10 @@ class CartItem {
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id'] as String,
+      productId: json['productId'] as String?,
+      product: json['product'] != null 
+          ? Product.fromJson(json['product'] as Map<String, dynamic>)
+          : null,
       name: json['name'] as String,
       price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] as int? ?? 1,

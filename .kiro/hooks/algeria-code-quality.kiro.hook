@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Algeria Code Quality Audit",
+  "description": "Audit qualité code selon standards Algeria banking",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Auditer qualité code Flutter selon standards Algeria Marketplace :\n\nARCHITECTURE:\n- Clean Architecture implémentée (Domain/Data/Presentation)\n- BLoC state management correct\n- Repository pattern respecté\n- Dependency injection (GetIt) configuré\n\nCODE QUALITY:\n- Pas de classes undefined (GlassmorphicContainer, ProductCard, etc.)\n- Imports corrects (relatifs au lieu package:marketplace)\n- Pas d'invalid const values\n- Pas de deprecated API usage\n\nSTANDARDS ALGERIA:\n- Palette verte respectée (#051F20 to #DAFDE)\n- Support RTL pour arabe\n- Banking security standards\n- Performance optimisée (60 FPS, <3s cold start)\n\nGénérer liste actions correctives prioritaires."
+  }
+}

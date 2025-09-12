@@ -1,32 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'core/config/environment_secure.dart';
-import 'core/di/injection_container.dart';
-import 'core/theme/app_theme.dart';
+import 'core/theme/algeria_theme.dart';
 import 'core/localization/app_localizations_delegate.dart';
+import 'core/services/app_initialization_service.dart';
 import 'core/services/localization_service.dart';
 import 'core/services/currency_service.dart';
 import 'core/services/payment_service.dart';
-import 'providers/auth_provider.dart';
+import 'services/banking_auth_service.dart';
+import 'providers/auth_provider_secure.dart';
 import 'providers/cart_provider.dart';
 import 'providers/product_provider.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize environment
-  const environment = String.fromEnvironment(
-    'ENVIRONMENT',
-    defaultValue: 'development',
-  );
-
-  await EnvironmentSecure.initialize(environment);
-
-  // Configure dependency injection
-  configureDependencies();
-
+  
+  // Start app immediately for fast cold start
   runApp(const MarketplaceApp());
 }
 
@@ -38,13 +29,7 @@ class MarketplaceApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => getIt<AuthProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => getIt<CartProvider>(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => getIt<ProductProvider>(),
+          create: (_) => AppInitializationService(),
         ),
         ChangeNotifierProvider(
           create: (_) => LocalizationService(),
@@ -55,6 +40,10 @@ class MarketplaceApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => PaymentService(),
         ),
+        Provider(
+          create: (_) => BankingAuthService(),
+        ),
+        // Other providers will be initialized after app initialization
       ],
       child: Consumer<LocalizationService>(
         builder: (context, localizationService, child) {
@@ -72,10 +61,10 @@ class MarketplaceApp extends StatelessWidget {
               // Default to Arabic for Algeria market
               return const Locale('ar', '');
             },
-            theme: AppTheme.getLightTheme(),
-            darkTheme: AppTheme.getDarkTheme(),
+            theme: AlgeriaTheme.getLightTheme(),
+            darkTheme: AlgeriaTheme.getDarkTheme(),
             themeMode: ThemeMode.light,
-            home: const HomeScreen(), // Direct to home screen for testing
+            home: const SplashScreen(), // Start with splash for fast cold start
             debugShowCheckedModeBanner: false,
           );
         },

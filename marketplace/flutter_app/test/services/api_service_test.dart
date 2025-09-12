@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 
-import 'package:marketplace/services/api_service.dart';
-import 'package:marketplace/models/product.dart';
-import 'package:marketplace/models/user.dart';
+import '../lib/services/api_service.dart';
+import '../lib/models/product.dart';
+import '../lib/models/user.dart';
 
 // Generate mocks using build_runner
 @GenerateMocks([http.Client])

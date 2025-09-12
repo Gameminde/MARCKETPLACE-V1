@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:marketplace/providers/search_provider.dart';
-import 'package:marketplace/models/product.dart';
+import '../../lib/providers/search_provider.dart';
+import '../../lib/models/product.dart';
 
 void main() {
   group('SearchProvider Tests', () {

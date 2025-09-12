@@ -1,28 +1,51 @@
-/// User roles enum
+/// User roles enum for the marketplace
 enum UserRole {
   buyer,
   seller,
-  admin,
-  moderator,
+  admin;
+
+  String get name {
+    switch (this) {
+      case UserRole.buyer:
+        return 'buyer';
+      case UserRole.seller:
+        return 'seller';
+      case UserRole.admin:
+        return 'admin';
+    }
+  }
+
+  static UserRole fromString(String role) {
+    switch (role.toLowerCase()) {
+      case 'seller':
+        return UserRole.seller;
+      case 'admin':
+        return UserRole.admin;
+      case 'buyer':
+      default:
+        return UserRole.buyer;
+    }
+  }
 }
 
-/// User model for authentication and profile management
+/// User model for the marketplace
 class User {
   final String id;
   final String email;
   final String firstName;
   final String lastName;
   final String? phoneNumber;
-  final String? avatarUrl;
-  final UserRole role;
+  final String? profileImageUrl;
+  final String? profilePictureUrl; // Alternative name for compatibility
+  final String? displayName;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final bool isVerified;
   final bool isEmailVerified;
-  final bool isPhoneVerified;
   final bool isMfaEnabled;
-  final bool isActive;
-  final DateTime createdAt;
-  final DateTime? lastLoginAt;
-  final Map<String, dynamic>? preferences;
-  final Map<String, dynamic>? metadata;
+  final bool isTwoFactorEnabled;
+  final String? membershipTier;
+  final UserRole role;
 
   User({
     required this.id,
@@ -30,83 +53,49 @@ class User {
     required this.firstName,
     required this.lastName,
     this.phoneNumber,
-    this.avatarUrl,
-    this.role = UserRole.buyer,
+    this.profileImageUrl,
+    this.profilePictureUrl,
+    this.displayName,
+    this.createdAt,
+    this.updatedAt,
+    this.isVerified = false,
     this.isEmailVerified = false,
-    this.isPhoneVerified = false,
     this.isMfaEnabled = false,
-    this.isActive = true,
-    required this.createdAt,
-    this.lastLoginAt,
-    this.preferences,
-    this.metadata,
+    this.isTwoFactorEnabled = false,
+    this.membershipTier,
+    this.role = UserRole.buyer,
   });
 
-  /// Get user's full name
   String get fullName => '$firstName $lastName';
+  
+  /// Get display name with fallback to full name
+  String get effectiveDisplayName => displayName ?? fullName;
 
-  /// Get user's display name (falls back to email if no name)
-  String get displayName {
-    final name = fullName.trim();
-    return name.isNotEmpty ? name : email;
-  }
-
-  /// Get user's initials for avatar
-  String get initials {
-    String first = firstName.isNotEmpty ? firstName[0].toUpperCase() : '';
-    String last = lastName.isNotEmpty ? lastName[0].toUpperCase() : '';
-    return first + last;
-  }
-
-  /// Check if user is verified (email and optionally phone)
-  bool get isVerified => isEmailVerified;
-
-  /// Check if user is fully verified (email + phone if provided)
-  bool get isFullyVerified {
-    if (phoneNumber != null) {
-      return isEmailVerified && isPhoneVerified;
-    }
-    return isEmailVerified;
-  }
-
-  /// Copy user with modifications
-  User copyWith({
-    String? id,
-    String? email,
-    String? firstName,
-    String? lastName,
-    String? phoneNumber,
-    String? avatarUrl,
-    UserRole? role,
-    bool? isEmailVerified,
-    bool? isPhoneVerified,
-    bool? isMfaEnabled,
-    bool? isActive,
-    DateTime? createdAt,
-    DateTime? lastLoginAt,
-    Map<String, dynamic>? preferences,
-    Map<String, dynamic>? metadata,
-  }) {
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: id ?? this.id,
-      email: email ?? this.email,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-      role: role ?? this.role,
-      isEmailVerified: isEmailVerified ?? this.isEmailVerified,
-      isPhoneVerified: isPhoneVerified ?? this.isPhoneVerified,
-      isMfaEnabled: isMfaEnabled ?? this.isMfaEnabled,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt ?? this.createdAt,
-      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
-      preferences: preferences ?? this.preferences,
-      metadata: metadata ?? this.metadata,
+      id: json['id'] ?? '',
+      email: json['email'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      phoneNumber: json['phoneNumber'],
+      profileImageUrl: json['profileImageUrl'],
+      profilePictureUrl: json['profilePictureUrl'] ?? json['profileImageUrl'],
+      displayName: json['displayName'],
+      createdAt: json['createdAt'] != null 
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null 
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
+      isVerified: json['isVerified'] ?? false,
+      isEmailVerified: json['isEmailVerified'] ?? false,
+      isMfaEnabled: json['isMfaEnabled'] ?? false,
+      isTwoFactorEnabled: json['isTwoFactorEnabled'] ?? json['isMfaEnabled'] ?? false,
+      membershipTier: json['membershipTier'],
+      role: UserRole.fromString(json['role'] ?? 'buyer'),
     );
   }
 
-  /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -114,56 +103,55 @@ class User {
       'firstName': firstName,
       'lastName': lastName,
       'phoneNumber': phoneNumber,
-      'avatarUrl': avatarUrl,
-      'role': role.name,
+      'profileImageUrl': profileImageUrl,
+      'profilePictureUrl': profilePictureUrl ?? profileImageUrl,
+      'displayName': displayName,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'isVerified': isVerified,
       'isEmailVerified': isEmailVerified,
-      'isPhoneVerified': isPhoneVerified,
       'isMfaEnabled': isMfaEnabled,
-      'isActive': isActive,
-      'createdAt': createdAt.toIso8601String(),
-      'lastLoginAt': lastLoginAt?.toIso8601String(),
-      'preferences': preferences,
-      'metadata': metadata,
+      'isTwoFactorEnabled': isTwoFactorEnabled,
+      'membershipTier': membershipTier,
+      'role': role.name,
     };
   }
 
-  /// Create from JSON
-  factory User.fromJson(Map<String, dynamic> json) {
+  User copyWith({
+    String? id,
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
+    String? profileImageUrl,
+    String? profilePictureUrl,
+    String? displayName,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isVerified,
+    bool? isEmailVerified,
+    bool? isMfaEnabled,
+    bool? isTwoFactorEnabled,
+    String? membershipTier,
+    UserRole? role,
+  }) {
     return User(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
-      phoneNumber: json['phoneNumber'] as String?,
-      avatarUrl: json['avatarUrl'] as String?,
-      role: UserRole.values.firstWhere(
-        (role) => role.name == json['role'],
-        orElse: () => UserRole.buyer,
-      ),
-      isEmailVerified: json['isEmailVerified'] as bool? ?? false,
-      isPhoneVerified: json['isPhoneVerified'] as bool? ?? false,
-      isMfaEnabled: json['isMfaEnabled'] as bool? ?? false,
-      isActive: json['isActive'] as bool? ?? true,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastLoginAt: json['lastLoginAt'] != null
-          ? DateTime.parse(json['lastLoginAt'] as String)
-          : null,
-      preferences: json['preferences'] as Map<String, dynamic>?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
+      id: id ?? this.id,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
+      displayName: displayName ?? this.displayName,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isVerified: isVerified ?? this.isVerified,
+      isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+      isMfaEnabled: isMfaEnabled ?? this.isMfaEnabled,
+      isTwoFactorEnabled: isTwoFactorEnabled ?? this.isTwoFactorEnabled,
+      membershipTier: membershipTier ?? this.membershipTier,
+      role: role ?? this.role,
     );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is User && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  String toString() {
-    return 'User{id: $id, email: $email, fullName: $fullName, role: $role}';
   }
 }
