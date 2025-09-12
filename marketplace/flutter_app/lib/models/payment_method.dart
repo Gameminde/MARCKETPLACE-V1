@@ -104,7 +104,7 @@ class MockPaymentMethods {
       id: 'pm_3',
       name: 'Google Pay',
       type: PaymentType.googlePay,
-      icon: Icons.google,
+      icon: Icons.account_circle, // Replaced Icons.google with valid icon
     ),
   ];
 }

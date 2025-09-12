@@ -154,13 +154,13 @@ class MockOrders {
       id: 'order_1',
       userId: 'user_1',
       items: [
-        const CartItem(
+        CartItem(
           id: 'cart_1',
-          productId: 'prod_1',
           name: 'Wireless Headphones',
           price: 99.99,
           quantity: 1,
           imageUrl: 'https://example.com/headphones.jpg',
+          // productId is not a parameter of CartItem constructor
         ),
       ],
       shippingAddress: const Address(
