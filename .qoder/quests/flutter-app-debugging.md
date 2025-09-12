@@ -74,7 +74,7 @@ Change:
 lastSeen: DateTime.now().subtract(Duration(hours: 1)),
 ```
 to:
-``dart
+```dart
 lastSeen: DateTime(2023, 1, 1, 12, 0), // Example fixed date
 ```
 
@@ -110,7 +110,7 @@ Replace:
 icon: Icons.google,
 ```
 with:
-``dart
+```dart
 icon: Icons.account_circle, // or another appropriate icon
 ```
 
