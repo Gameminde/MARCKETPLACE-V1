@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:marketplace/widgets/product_card.dart';
-import 'package:marketplace/models/product.dart';
-import 'package:marketplace/providers/cart_provider.dart';
-import 'package:marketplace/providers/wishlist_provider.dart';
+import 'package:marketplace_app/widgets/product_card.dart';
+import 'package:marketplace_app/models/product.dart';
+import 'package:marketplace_app/providers/cart_provider.dart';
+import 'package:marketplace_app/providers/wishlist_provider.dart';
 
 void main() {
   group('ProductCard Widget Tests', () {
