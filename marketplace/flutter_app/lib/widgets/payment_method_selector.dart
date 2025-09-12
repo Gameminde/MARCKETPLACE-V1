@@ -11,13 +11,13 @@ import '../widgets/loading_states.dart';
 class PaymentMethodSelector extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
   final PaymentMethod? selectedPaymentMethod;
-  final Function(PaymentMethod)? onPaymentMethodSelected;
+  final Function(PaymentMethod?)? onPaymentMethodSelected;
   final Function()? onAddNewCard;
   final bool enableAddNew;
   final bool showExpressPayment;
   final bool isLoading;
   final String? errorMessage;
-  
+
   const PaymentMethodSelector({
     super.key,
     required this.paymentMethods,
@@ -38,17 +38,17 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   bool _showAddCardForm = false;
-  
+
   // Form controllers
   final _cardNumberController = TextEditingController();
   final _expiryController = TextEditingController();
   final _cvvController = TextEditingController();
   final _cardHolderController = TextEditingController();
-  
+
   // Form validation
   final _formKey = GlobalKey<FormState>();
   String? _cardType;
-  
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +58,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
     );
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -91,16 +91,16 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
             children: [
               // Express Payment Options
               if (widget.showExpressPayment) _buildExpressPayment(),
-              
+
               // Divider
               if (widget.showExpressPayment) _buildDivider(),
-              
+
               // Saved Payment Methods
               if (widget.paymentMethods.isNotEmpty) _buildSavedPaymentMethods(),
-              
+
               // Add New Card
               if (widget.enableAddNew) _buildAddNewCard(),
-              
+
               // Error Message
               if (widget.errorMessage != null) _buildErrorMessage(),
             ],
@@ -109,7 +109,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       },
     );
   }
-  
+
   Widget _buildExpressPayment() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,8 +117,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
         Text(
           'Express Checkout',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const SizedBox(height: AppConstants.spacingM),
         Row(
@@ -134,7 +134,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
             Expanded(
               child: _buildExpressPaymentButton(
                 'Google Pay',
-                Icons.google,
+                Icons.account_circle, // Replaced Icons.google with valid icon
                 () => _handleExpressPayment('google_pay'),
               ),
             ),
@@ -153,7 +153,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ],
     );
   }
-  
+
   Widget _buildExpressPaymentButton(
     String label,
     IconData icon,
@@ -177,8 +177,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -221,7 +221,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       },
     );
   }
-  
+
   Widget _buildDivider() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: AppConstants.spacingL),
@@ -233,12 +233,13 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingM),
+            padding:
+                const EdgeInsets.symmetric(horizontal: AppConstants.spacingM),
             child: Text(
               'or pay with card',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ),
           Expanded(
@@ -250,7 +251,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ),
     );
   }
-  
+
   Widget _buildSavedPaymentMethods() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,8 +259,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
         Text(
           'Saved Payment Methods',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const SizedBox(height: AppConstants.spacingM),
         ...widget.paymentMethods.map((method) {
@@ -271,10 +272,10 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ],
     );
   }
-  
+
   Widget _buildPaymentMethodCard(PaymentMethod method) {
     final isSelected = widget.selectedPaymentMethod == method;
-    
+
     return GlassmorphicContainer.card(
       child: RadioListTile<PaymentMethod>(
         value: method,
@@ -291,15 +292,17 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
                   Text(
                     method.displayName,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
-                  if (method.type == PaymentType.creditCard && method.last4Digits != null)
+                  if (method.type == PaymentType.creditCard &&
+                      method.last4Digits != null)
                     Text(
                       'Expires 12/25', // This would come from the payment method
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                 ],
               ),
@@ -312,14 +315,15 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
                 ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                 ),
                 child: Text(
                   'Default',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
           ],
@@ -331,7 +335,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ),
     );
   }
-  
+
   Widget _buildAddNewCard() {
     return Column(
       children: [
@@ -343,7 +347,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
                 padding: const EdgeInsets.all(AppConstants.spacingS),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                 ),
                 child: Icon(
                   Icons.add,
@@ -353,9 +358,9 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
               title: Text(
                 'Add New Card',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               subtitle: const Text('Add credit or debit card'),
               onTap: () {
@@ -369,7 +374,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ],
     );
   }
-  
+
   Widget _buildAddCardForm() {
     return GlassmorphicContainer.card(
       child: Padding(
@@ -385,8 +390,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
                   Text(
                     'Add New Card',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   IconButton(
                     onPressed: () {
@@ -399,11 +404,11 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
                 ],
               ),
               const SizedBox(height: AppConstants.spacingL),
-              
+
               // Card Number
               _buildCardNumberField(),
               const SizedBox(height: AppConstants.spacingM),
-              
+
               // Expiry and CVV
               Row(
                 children: [
@@ -413,15 +418,15 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
                 ],
               ),
               const SizedBox(height: AppConstants.spacingM),
-              
+
               // Cardholder Name
               _buildCardHolderField(),
               const SizedBox(height: AppConstants.spacingL),
-              
+
               // Security Info
               _buildSecurityInfo(),
               const SizedBox(height: AppConstants.spacingL),
-              
+
               // Add Card Button
               SizedBox(
                 width: double.infinity,
@@ -436,7 +441,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ),
     );
   }
-  
+
   Widget _buildExpiryField() {
     return TextFormField(
       controller: _expiryController,
@@ -464,7 +469,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       },
     );
   }
-  
+
   Widget _buildCvvField() {
     return TextFormField(
       controller: _cvvController,
@@ -495,7 +500,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       },
     );
   }
-  
+
   Widget _buildCardHolderField() {
     return TextFormField(
       controller: _cardHolderController,
@@ -515,7 +520,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       },
     );
   }
-  
+
   Widget _buildSecurityInfo() {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -535,15 +540,15 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
             child: Text(
               'Your payment information is encrypted and secure',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ),
         ],
       ),
     );
   }
-  
+
   Widget _buildErrorMessage() {
     return Container(
       margin: const EdgeInsets.only(top: AppConstants.spacingM),
@@ -567,28 +572,28 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
             child: Text(
               widget.errorMessage!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
             ),
           ),
         ],
       ),
     );
   }
-  
+
   // Helper methods
   void _handleExpressPayment(String method) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$method checkout not implemented yet')),
     );
   }
-  
+
   void _editPaymentMethod(PaymentMethod method) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Edit payment method feature coming soon')),
     );
   }
-  
+
   void _addNewCard() {
     if (_formKey.currentState?.validate() ?? false) {
       final newPaymentMethod = PaymentMethod(
@@ -596,30 +601,30 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
         name: 'Credit Card',
         type: PaymentType.creditCard,
         last4Digits: _cardNumberController.text.replaceAll(' ', '').substring(
-          _cardNumberController.text.replaceAll(' ', '').length - 4,
-        ),
+              _cardNumberController.text.replaceAll(' ', '').length - 4,
+            ),
         brand: _cardType ?? 'Unknown',
         icon: Icons.credit_card,
       );
-      
+
       widget.onPaymentMethodSelected?.call(newPaymentMethod);
-      
+
       setState(() {
         _showAddCardForm = false;
       });
-      
+
       // Clear form
       _cardNumberController.clear();
       _expiryController.clear();
       _cvvController.clear();
       _cardHolderController.clear();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Card added successfully')),
       );
     }
   }
-  
+
   void _showCvvInfo() {
     showDialog(
       context: context,
@@ -638,7 +643,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
       ),
     );
   }
-  
+
   Widget _getCardTypeIcon(String cardType) {
     switch (cardType.toLowerCase()) {
       case 'visa':
@@ -651,7 +656,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector>
         return const Icon(Icons.credit_card);
     }
   }
-  
+
   String? _getCardType(String cardNumber) {
     final number = cardNumber.replaceAll(' ', '');
     if (number.startsWith('4')) {
@@ -674,14 +679,14 @@ class _CardNumberFormatter extends TextInputFormatter {
   ) {
     final text = newValue.text.replaceAll(' ', '');
     final buffer = StringBuffer();
-    
+
     for (int i = 0; i < text.length; i++) {
       buffer.write(text[i]);
       if ((i + 1) % 4 == 0 && i + 1 != text.length) {
         buffer.write(' ');
       }
     }
-    
+
     return TextEditingValue(
       text: buffer.toString(),
       selection: TextSelection.collapsed(offset: buffer.length),
@@ -697,14 +702,14 @@ class _ExpiryDateFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text;
-    
+
     if (text.length == 2 && oldValue.text.length == 1) {
       return TextEditingValue(
         text: '$text/',
         selection: const TextSelection.collapsed(offset: 3),
       );
     }
-    
+
     return newValue;
   }
 }

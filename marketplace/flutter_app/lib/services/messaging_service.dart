@@ -9,8 +9,9 @@ import '../services/websocket_service.dart';
 /// Messaging service for chat functionality
 class MessagingService extends ChangeNotifier {
   static MessagingService? _instance;
-  static MessagingService get instance => _instance ??= MessagingService._internal();
-  
+  static MessagingService get instance =>
+      _instance ??= MessagingService._internal();
+
   MessagingService._internal();
 
   // Dependencies
@@ -22,7 +23,7 @@ class MessagingService extends ChangeNotifier {
   final Map<String, ChatRoom> _chatRooms = {};
   final Map<String, StreamController<Message>> _messageStreams = {};
   final Map<String, Timer> _typingTimers = {};
-  
+
   bool _isInitialized = false;
   bool _isLoading = false;
   String? _errorMessage;
@@ -32,7 +33,7 @@ class MessagingService extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   List<ChatRoom> get chatRooms => _chatRooms.values.toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
   /// Initialize messaging service
   Future<void> initialize() async {
@@ -40,22 +41,21 @@ class MessagingService extends ChangeNotifier {
 
     try {
       _setLoading(true);
-      
+
       _webSocketService = WebSocketService.instance;
       _prefs = await SharedPreferences.getInstance();
-      
+
       // Listen to WebSocket messages
       _webSocketService.messageStream.listen(_handleWebSocketMessage);
-      
+
       // Load cached data
       await _loadCachedData();
-      
+
       // Load initial chat rooms
       await _loadChatRooms();
-      
+
       _isInitialized = true;
       debugPrint('MessagingService initialized successfully');
-      
     } catch (e) {
       debugPrint('Failed to initialize MessagingService: $e');
       _setError('Failed to initialize messaging service');
@@ -83,17 +83,19 @@ class MessagingService extends ChangeNotifier {
   }
 
   /// Get or create chat room for product inquiry
-  Future<ChatRoom?> getOrCreateProductChat(String productId, String sellerId) async {
+  Future<ChatRoom?> getOrCreateProductChat(
+      String productId, String sellerId) async {
     try {
       // Check if chat already exists
       final existingChat = _chatRooms.values.firstWhere(
-        (chat) => chat.productId == productId && 
-                  chat.participants.any((p) => p.id == sellerId),
+        (chat) =>
+            chat.productId == productId &&
+            chat.participants.any((p) => p.id == sellerId),
         orElse: () => throw StateError('Not found'),
       );
-      
+
       return existingChat;
-        } catch (e) {
+    } catch (e) {
       // Chat doesn't exist, create new one
     }
 
@@ -128,6 +130,7 @@ class MessagingService extends ChangeNotifier {
           'action': 'send_message',
           'message': message.toJson(),
         },
+        timestamp: DateTime.now(),
       ));
 
       // Update message status to sent
@@ -152,7 +155,8 @@ class MessagingService extends ChangeNotifier {
       bool hasUpdates = false;
 
       for (final message in messages) {
-        if (!message.isFromCurrentUser && message.status != MessageStatus.read) {
+        if (!message.isFromCurrentUser &&
+            message.status != MessageStatus.read) {
           final updatedMessage = message.copyWith(status: MessageStatus.read);
           final index = messages.indexOf(message);
           messages[index] = updatedMessage;
@@ -176,6 +180,7 @@ class MessagingService extends ChangeNotifier {
             'action': 'mark_read',
             'chat_id': chatId,
           },
+          timestamp: DateTime.now(),
         ));
       }
     } catch (e) {
@@ -192,6 +197,7 @@ class MessagingService extends ChangeNotifier {
           'action': 'typing_start',
           'chat_id': chatId,
         },
+        timestamp: DateTime.now(),
       ));
     } catch (e) {
       debugPrint('Error starting typing: $e');
@@ -207,6 +213,7 @@ class MessagingService extends ChangeNotifier {
           'action': 'typing_stop',
           'chat_id': chatId,
         },
+        timestamp: DateTime.now(),
       ));
     } catch (e) {
       debugPrint('Error stopping typing: $e');
@@ -218,7 +225,7 @@ class MessagingService extends ChangeNotifier {
     try {
       final messages = _chatMessages[chatId] ?? [];
       messages.removeWhere((m) => m.id == messageId);
-      
+
       notifyListeners();
       await _cacheMessages(chatId);
 
@@ -230,6 +237,7 @@ class MessagingService extends ChangeNotifier {
           'message_id': messageId,
           'chat_id': chatId,
         },
+        timestamp: DateTime.now(),
       ));
 
       return true;
@@ -240,7 +248,8 @@ class MessagingService extends ChangeNotifier {
   }
 
   /// Load messages for a chat room
-  Future<void> loadMessages(String chatId, {int limit = 50, int offset = 0}) async {
+  Future<void> loadMessages(String chatId,
+      {int limit = 50, int offset = 0}) async {
     try {
       // In a real app, this would make an API call
       // For now, load from cache or create mock data
@@ -248,7 +257,7 @@ class MessagingService extends ChangeNotifier {
         _chatMessages[chatId] = Message.mockMessages(chatId);
         await _cacheMessages(chatId);
       }
-      
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading messages: $e');
@@ -259,13 +268,14 @@ class MessagingService extends ChangeNotifier {
   /// Search messages
   Future<List<Message>> searchMessages(String query, {String? chatId}) async {
     try {
-      final allMessages = chatId != null 
+      final allMessages = chatId != null
           ? _chatMessages[chatId] ?? []
           : _chatMessages.values.expand((messages) => messages).toList();
 
-      return allMessages.where((message) =>
-        message.content.toLowerCase().contains(query.toLowerCase())
-      ).toList();
+      return allMessages
+          .where((message) =>
+              message.content.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     } catch (e) {
       debugPrint('Error searching messages: $e');
       return [];
@@ -302,7 +312,7 @@ class MessagingService extends ChangeNotifier {
       _chatMessages.remove(chatId);
       _messageStreams[chatId]?.close();
       _messageStreams.remove(chatId);
-      
+
       notifyListeners();
       await _cacheChatRooms();
       await _prefs?.remove('messages_$chatId');
@@ -356,7 +366,7 @@ class MessagingService extends ChangeNotifier {
     if (!_chatMessages.containsKey(message.chatId)) {
       _chatMessages[message.chatId] = [];
     }
-    
+
     _chatMessages[message.chatId]!.add(message);
 
     // Update chat room
@@ -365,7 +375,8 @@ class MessagingService extends ChangeNotifier {
       _chatRooms[message.chatId] = _chatRooms[message.chatId]!.copyWith(
         lastMessage: message,
         updatedAt: message.timestamp,
-        unreadCount: message.isFromCurrentUser ? currentUnread : currentUnread + 1,
+        unreadCount:
+            message.isFromCurrentUser ? currentUnread : currentUnread + 1,
       );
     }
 
@@ -379,10 +390,12 @@ class MessagingService extends ChangeNotifier {
     for (final chatId in _chatMessages.keys) {
       final messages = _chatMessages[chatId]!;
       final messageIndex = messages.indexWhere((m) => m.id == messageId);
-      
+
       if (messageIndex != -1) {
-        final messageStatus = MessageStatus.values.firstWhere((s) => s.name == status);
-        messages[messageIndex] = messages[messageIndex].copyWith(status: messageStatus);
+        final messageStatus =
+            MessageStatus.values.firstWhere((s) => s.name == status);
+        messages[messageIndex] =
+            messages[messageIndex].copyWith(status: messageStatus);
         notifyListeners();
         _cacheMessages(chatId);
         break;
@@ -395,9 +408,10 @@ class MessagingService extends ChangeNotifier {
     if (_chatRooms.containsKey(chatId)) {
       final participants = _chatRooms[chatId]!.participants;
       final participantIndex = participants.indexWhere((p) => p.id == userId);
-      
+
       if (participantIndex != -1) {
-        participants[participantIndex] = participants[participantIndex].copyWith(isTyping: true);
+        participants[participantIndex] =
+            participants[participantIndex].copyWith(isTyping: true);
         notifyListeners();
 
         // Auto-stop typing after timeout
@@ -414,13 +428,14 @@ class MessagingService extends ChangeNotifier {
     if (_chatRooms.containsKey(chatId)) {
       final participants = _chatRooms[chatId]!.participants;
       final participantIndex = participants.indexWhere((p) => p.id == userId);
-      
+
       if (participantIndex != -1) {
-        participants[participantIndex] = participants[participantIndex].copyWith(isTyping: false);
+        participants[participantIndex] =
+            participants[participantIndex].copyWith(isTyping: false);
         notifyListeners();
       }
     }
-    
+
     _typingTimers[userId]?.cancel();
     _typingTimers.remove(userId);
   }
@@ -435,9 +450,11 @@ class MessagingService extends ChangeNotifier {
   /// Handle user online status
   void _handleUserOnlineStatus(String userId, bool isOnline) {
     for (final chatRoom in _chatRooms.values) {
-      final participantIndex = chatRoom.participants.indexWhere((p) => p.id == userId);
+      final participantIndex =
+          chatRoom.participants.indexWhere((p) => p.id == userId);
       if (participantIndex != -1) {
-        chatRoom.participants[participantIndex] = chatRoom.participants[participantIndex].copyWith(
+        chatRoom.participants[participantIndex] =
+            chatRoom.participants[participantIndex].copyWith(
           isOnline: isOnline,
           lastSeen: isOnline ? null : DateTime.now(),
         );
@@ -451,9 +468,10 @@ class MessagingService extends ChangeNotifier {
     for (final chatId in _chatMessages.keys) {
       final messages = _chatMessages[chatId]!;
       final messageIndex = messages.indexWhere((m) => m.id == messageId);
-      
+
       if (messageIndex != -1) {
-        messages[messageIndex] = messages[messageIndex].copyWith(status: status);
+        messages[messageIndex] =
+            messages[messageIndex].copyWith(status: status);
         notifyListeners();
         _cacheMessages(chatId);
         break;
@@ -464,7 +482,7 @@ class MessagingService extends ChangeNotifier {
   /// Create a new product chat
   Future<ChatRoom> _createProductChat(String productId, String sellerId) async {
     final chatId = 'chat_${DateTime.now().millisecondsSinceEpoch}';
-    
+
     final chatRoom = ChatRoom(
       id: chatId,
       title: 'Product Inquiry',
@@ -486,15 +504,15 @@ class MessagingService extends ChangeNotifier {
     );
 
     _chatRooms[chatId] = chatRoom;
-    
+
     // Add welcome message
     final welcomeMessage = Message.system(
       content: 'Chat started for product inquiry',
       chatId: chatId,
     );
-    
+
     _chatMessages[chatId] = [welcomeMessage];
-    
+
     notifyListeners();
     await _cacheChatRooms();
     await _cacheMessages(chatId);
@@ -511,7 +529,7 @@ class MessagingService extends ChangeNotifier {
         final mockRooms = ChatRoom.mockChatRooms();
         for (final room in mockRooms) {
           _chatRooms[room.id] = room;
-          
+
           // Load messages for each room
           if (!_chatMessages.containsKey(room.id)) {
             _chatMessages[room.id] = Message.mockMessages(room.id);
@@ -542,9 +560,8 @@ class MessagingService extends ChangeNotifier {
         final messagesJson = _prefs?.getString('messages_$chatId');
         if (messagesJson != null) {
           final List<dynamic> messagesList = jsonDecode(messagesJson);
-          _chatMessages[chatId] = messagesList
-              .map((msgData) => Message.fromJson(msgData))
-              .toList();
+          _chatMessages[chatId] =
+              messagesList.map((msgData) => Message.fromJson(msgData)).toList();
         }
       }
     } catch (e) {

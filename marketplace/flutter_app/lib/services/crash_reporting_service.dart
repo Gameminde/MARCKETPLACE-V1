@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Comprehensive crash reporting service for the marketplace app
-/// 
+///
 /// This service captures and reports crashes, errors, and exceptions with
 /// detailed context information for debugging and monitoring.
-/// 
+///
 /// Features:
 /// - Automatic crash detection and reporting
 /// - Custom error logging with context
 /// - Device and app information collection
 /// - Local crash storage for offline scenarios
 /// - Integration with external crash reporting services
-/// 
+///
 /// Usage:
 /// ```dart
 /// CrashReportingService.instance.initialize();
@@ -84,17 +85,18 @@ class CrashReportingService {
     );
 
     _crashReports.add(crash);
-    
+
     // Store crash locally
     await _storeCrashLocally(crash);
-    
+
     // Report crash to external service
     await _reportCrashToService(crash);
-    
+
     // Log crash details
     _logCrash(crash);
-    
-    debugPrint('💥 ${fatal ? 'Fatal crash' : 'Error'} recorded: ${exception.toString()}');
+
+    debugPrint(
+        '💥 ${fatal ? 'Fatal crash' : 'Error'} recorded: ${exception.toString()}');
   }
 
   /// Record a custom error with context
@@ -154,7 +156,8 @@ class CrashReportingService {
 
   /// Record navigation for breadcrumb trail
   void recordNavigation(String from, String to, {Map<String, dynamic>? data}) {
-    addBreadcrumb(BreadcrumbType.navigation, 'Navigate from $from to $to', data);
+    addBreadcrumb(
+        BreadcrumbType.navigation, 'Navigate from $from to $to', data);
   }
 
   /// Record state change for breadcrumb trail
@@ -164,17 +167,18 @@ class CrashReportingService {
 
   /// Add breadcrumb for debugging trail
   final List<Breadcrumb> _breadcrumbs = [];
-  
-  void addBreadcrumb(BreadcrumbType type, String message, [Map<String, dynamic>? data]) {
+
+  void addBreadcrumb(BreadcrumbType type, String message,
+      [Map<String, dynamic>? data]) {
     final breadcrumb = Breadcrumb(
       timestamp: DateTime.now(),
       type: type,
       message: message,
       data: data,
     );
-    
+
     _breadcrumbs.add(breadcrumb);
-    
+
     // Keep only last 50 breadcrumbs
     if (_breadcrumbs.length > 50) {
       _breadcrumbs.removeAt(0);
@@ -205,8 +209,10 @@ class CrashReportingService {
     final last24Hours = now.subtract(const Duration(hours: 24));
     final lastWeek = now.subtract(const Duration(days: 7));
 
-    final crashes24h = _crashReports.where((c) => c.timestamp.isAfter(last24Hours)).length;
-    final crashesWeek = _crashReports.where((c) => c.timestamp.isAfter(lastWeek)).length;
+    final crashes24h =
+        _crashReports.where((c) => c.timestamp.isAfter(last24Hours)).length;
+    final crashesWeek =
+        _crashReports.where((c) => c.timestamp.isAfter(lastWeek)).length;
     final fatalCrashes = _crashReports.where((c) => c.fatal).length;
 
     final errorTypes = <String, int>{};
@@ -290,7 +296,7 @@ class CrashReportingService {
         final List<dynamic> errorAndStacktrace = pair;
         final error = errorAndStacktrace.first;
         final stack = errorAndStacktrace.last;
-        
+
         await recordError(
           error,
           StackTrace.fromString(stack.toString()),
@@ -315,7 +321,7 @@ class CrashReportingService {
 
       // Get device info
       final deviceInfo = DeviceInfoPlugin();
-      
+
       if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
         _sessionInfo.addAll({
@@ -345,7 +351,6 @@ class CrashReportingService {
         'profile_mode': kProfileMode,
         'release_mode': kReleaseMode,
       });
-      
     } catch (e) {
       debugPrint('Failed to collect system info: $e');
     }
@@ -380,11 +385,10 @@ class CrashReportingService {
       // - Sentry
       // - Bugsnag
       // - Custom crash reporting endpoint
-      
+
       if (kDebugMode) {
         debugPrint('📡 Would report crash to external service: ${crash.id}');
       }
-      
     } catch (e) {
       debugPrint('Failed to report crash to service: $e');
     }
@@ -471,7 +475,7 @@ class CrashReport {
       sessionId: json['session_id'],
       userId: json['user_id'],
       deviceInfo: Map<String, dynamic>.from(json['device_info']),
-      customData: json['custom_data'] != null 
+      customData: json['custom_data'] != null
           ? Map<String, dynamic>.from(json['custom_data'])
           : null,
       breadcrumbs: (json['breadcrumbs'] as List)
@@ -509,9 +513,8 @@ class Breadcrumb {
       timestamp: DateTime.parse(json['timestamp']),
       type: BreadcrumbType.values.firstWhere((t) => t.name == json['type']),
       message: json['message'],
-      data: json['data'] != null 
-          ? Map<String, dynamic>.from(json['data'])
-          : null,
+      data:
+          json['data'] != null ? Map<String, dynamic>.from(json['data']) : null,
     );
   }
 }
@@ -588,7 +591,7 @@ class _CrashReportingWrapperState extends State<CrashReportingWrapper> {
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.screenName != null) {
       CrashReportingService.instance.recordNavigation(
         'previous_screen',

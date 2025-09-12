@@ -10,7 +10,7 @@ import '../core/config/environment.dart';
 /// Search service for API communication
 class SearchService {
   final String _baseUrl = Environment.baseUrl;
-  
+
   /// Perform regular text search
   Future<SearchResult> search({
     required String query,
@@ -26,24 +26,24 @@ class SearchService {
         'limit': limit.toString(),
         'sort': _sortByToString(sortBy),
       };
-      
+
       // Add filters to params
       if (filters != null) {
         params.addAll(_filtersToParams(filters));
       }
-      
-      final uri = Uri.parse('$_baseUrl${Environment.ApiEndpoints.productSearch}')
+
+      final uri = Uri.parse('$_baseUrl${ApiEndpoints.productSearch}')
           .replace(queryParameters: params);
-      
+
       final response = await http.get(uri);
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
-        
+
         final products = (data['products'] as List<dynamic>)
             .map((p) => Product.fromJson(p as Map<String, dynamic>))
             .toList();
-        
+
         return SearchResult.success(
           products: products,
           totalCount: data['totalCount'] as int? ?? 0,
@@ -52,13 +52,14 @@ class SearchService {
         );
       } else {
         final error = json.decode(response.body) as Map<String, dynamic>;
-        return SearchResult.error(error['message'] as String? ?? 'Search failed');
+        return SearchResult.error(
+            error['message'] as String? ?? 'Search failed');
       }
     } catch (e) {
       return SearchResult.error('Network error: $e');
     }
   }
-  
+
   /// Perform AI-powered search
   Future<SearchResult> aiSearch({
     required String query,
@@ -76,20 +77,20 @@ class SearchService {
         'filters': filters?.toJson(),
         'useAI': true,
       };
-      
+
       final response = await http.post(
-        Uri.parse('$_baseUrl${Environment.ApiEndpoints.aiSearch}'),
+        Uri.parse('$_baseUrl${ApiEndpoints.aiSearch}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
-        
+
         final products = (data['products'] as List<dynamic>)
             .map((p) => Product.fromJson(p as Map<String, dynamic>))
             .toList();
-        
+
         return SearchResult.success(
           products: products,
           totalCount: data['totalCount'] as int? ?? 0,
@@ -98,13 +99,14 @@ class SearchService {
         );
       } else {
         final error = json.decode(response.body) as Map<String, dynamic>;
-        return SearchResult.error(error['message'] as String? ?? 'AI search failed');
+        return SearchResult.error(
+            error['message'] as String? ?? 'AI search failed');
       }
     } catch (e) {
       return SearchResult.error('AI search error: $e');
     }
   }
-  
+
   /// Perform visual search with image
   Future<SearchResult> visualSearch({
     required String imagePath,
@@ -115,7 +117,7 @@ class SearchService {
       // This would typically upload an image and perform visual search
       // For now, return a mock result
       await Future.delayed(const Duration(seconds: 2)); // Simulate processing
-      
+
       return SearchResult.success(
         products: [],
         totalCount: 0,
@@ -125,21 +127,21 @@ class SearchService {
       return SearchResult.error('Visual search error: $e');
     }
   }
-  
+
   /// Perform barcode search
   Future<SearchResult> barcodeSearch(String barcode) async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/search/barcode/$barcode'),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
-        
+
         final products = (data['products'] as List<dynamic>)
             .map((p) => Product.fromJson(p as Map<String, dynamic>))
             .toList();
-        
+
         return SearchResult.success(
           products: products,
           totalCount: data['totalCount'] as int? ?? 0,
@@ -151,83 +153,84 @@ class SearchService {
       return SearchResult.error('Barcode search error: $e');
     }
   }
-  
+
   /// Get search suggestions
   Future<List<SearchSuggestion>> getSuggestions(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/search/suggestions?q=${Uri.encodeComponent(query)}'),
+        Uri.parse(
+            '$_baseUrl/search/suggestions?q=${Uri.encodeComponent(query)}'),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final suggestions = (data['suggestions'] as List<dynamic>)
             .map((s) => SearchSuggestion.fromJson(s as Map<String, dynamic>))
             .toList();
-        
+
         return suggestions;
       }
-      
+
       return [];
     } catch (e) {
       return [];
     }
   }
-  
+
   /// Get popular searches
   Future<List<String>> getPopularSearches() async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/search/popular'),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         return (data['searches'] as List<dynamic>).cast<String>();
       }
-      
+
       return [];
     } catch (e) {
       return [];
     }
   }
-  
+
   /// Get trending searches
   Future<List<String>> getTrendingSearches() async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/search/trending'),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         return (data['searches'] as List<dynamic>).cast<String>();
       }
-      
+
       return [];
     } catch (e) {
       return [];
     }
   }
-  
+
   /// Get AI recommendations
   Future<List<String>> getAiRecommendations() async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/search/ai-recommendations'),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         return (data['recommendations'] as List<dynamic>).cast<String>();
       }
-      
+
       return [];
     } catch (e) {
       return [];
     }
   }
-  
+
   /// Perform voice search (mock implementation)
   Future<String?> performVoiceSearch() async {
     try {
@@ -239,7 +242,7 @@ class SearchService {
       throw Exception('Voice search error: $e');
     }
   }
-  
+
   /// Track search event for analytics
   Future<void> trackSearchEvent({
     required String query,
@@ -249,7 +252,7 @@ class SearchService {
   }) async {
     try {
       await http.post(
-        Uri.parse('$_baseUrl${Environment.ApiEndpoints.trackEvent}'),
+        Uri.parse('$_baseUrl${ApiEndpoints.trackEvent}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'event': 'search',
@@ -265,7 +268,7 @@ class SearchService {
       print('Failed to track search event: $e');
     }
   }
-  
+
   /// Helper methods
   String _sortByToString(SearchSortBy sortBy) {
     switch (sortBy) {
@@ -283,10 +286,10 @@ class SearchService {
         return 'popularity';
     }
   }
-  
+
   Map<String, String> _filtersToParams(SearchFilter filters) {
     final params = <String, String>{};
-    
+
     if (filters.minPrice != null) {
       params['minPrice'] = filters.minPrice.toString();
     }
@@ -317,7 +320,7 @@ class SearchService {
     if (filters.onSale != null) {
       params['onSale'] = filters.onSale.toString();
     }
-    
+
     return params;
   }
 }

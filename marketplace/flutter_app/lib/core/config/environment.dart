@@ -153,7 +153,8 @@ class Environment {
   static Future<Map<String, String>> getSecureConfig() async {
     final secureService = SecureConfigService();
     return {
-      'stripePublishableKey': await secureService.getStripePublishableKey() ?? '',
+      'stripePublishableKey':
+          await secureService.getStripePublishableKey() ?? '',
       'firebaseApiKey': await secureService.getFirebaseApiKey() ?? '',
       'merchantId': await secureService.getMerchantId() ?? '',
     };
@@ -291,6 +292,8 @@ class ApiEndpoints {
   static const String products = '/products';
   static const String productDetail = '/products';
   static const String searchProducts = '/products/search';
+  static const String productSearch = '/products/search';
+  static const String aiSearch = '/products/ai-search';
   static const String categories = '/products/categories';
   static const String brands = '/products/brands';
   static const String trending = '/products/trending';
