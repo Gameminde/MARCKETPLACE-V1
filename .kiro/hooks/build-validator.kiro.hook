@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Phase 2 Build Validator",
+  "description": "Validation complète build Flutter pour Phase 2 Algeria",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "marketplace/flutter/**/*.dart",
+      "marketplace/flutter_app/**/*.dart",
+      "marketplace/flutter/pubspec.yaml",
+      "marketplace/flutter_app/pubspec.yaml",
+      "marketplace/flutter/android/**/*",
+      "marketplace/flutter_app/android/**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Effectuer audit complet build Flutter Marketplace Algeria :\n\n1. ENVIRONNEMENT:\n   - Vérifier Flutter SDK version et compatibilité\n   - Confirmer Android Studio configuration\n   - Valider chemins projet sans espaces\n   - Tester émulateur et device physique\n\n2. BUILD PROCESS:\n   - Exécuter flutter clean && flutter pub get\n   - Tester flutter build apk --debug\n   - Vérifier flutter build apk --release\n   - Valider code de sortie 0 pour tous builds\n\n3. ANDROID STUDIO:\n   - Ouvrir projet dans Android Studio\n   - Confirmer sync Gradle successful\n   - Tester Run/Debug depuis AS\n   - Valider hot reload fonctionnel\n\nGénérer rapport détaillé avec status PASS/FAIL pour chaque check."
+  }
+}

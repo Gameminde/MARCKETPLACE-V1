@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:marketplace/core/services/currency_service.dart';
+import '../../lib/core/services/currency_service.dart';
 
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 

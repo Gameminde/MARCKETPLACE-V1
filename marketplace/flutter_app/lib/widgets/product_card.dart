@@ -176,6 +176,10 @@ class _ProductCardState extends State<ProductCard>
         return _buildGridCard(context);
       case ProductCardStyle.list:
         return _buildListCard(context);
+      case ProductCardStyle.compact:
+        return _buildCompactCard(context);
+      case ProductCardStyle.featured:
+        return _buildFeaturedCard(context);
       case ProductCardStyle.standard:
       default:
         return _buildStandardCard(context);
@@ -593,6 +597,128 @@ class _ProductCardState extends State<ProductCard>
         return Icons.shopping_bag;
     }
   }
+
+  /// Build compact card layout
+  Widget _buildCompactCard(BuildContext context) {
+    return Container(
+      height: 120,
+      child: Row(
+        children: [
+          // Compact image
+          Container(
+            width: 80,
+            height: 80,
+            margin: const EdgeInsets.all(8),
+            child: _buildProductImage(context, isCompact: true),
+          ),
+          // Compact content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.product.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '\$${widget.product.price.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build featured card layout
+  Widget _buildFeaturedCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Featured badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(AppConstants.borderRadius),
+                bottomRight: Radius.circular(AppConstants.borderRadius),
+              ),
+            ),
+            child: Text(
+              'FEATURED',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          // Product image section
+          Expanded(
+            flex: 3,
+            child: _buildProductImage(context),
+          ),
+          // Product details section
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.spacingS),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.product.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${widget.product.price.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Product card styles enumeration
@@ -600,4 +726,6 @@ enum ProductCardStyle {
   standard,
   grid,
   list,
+  compact,
+  featured,
 }

@@ -1,0 +1,46 @@
+{
+  "name": "algeria-marketplace-audit",
+  "version": "1.0.0",
+  "description": "Comprehensive audit system for Algeria Marketplace Phase 2 readiness validation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "audit:full": "npm run build && node dist/index.js --full",
+    "audit:category": "npm run build && node dist/index.js --category"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
+    "semver": "^7.5.4",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/jest": "^29.5.8",
+    "@types/fs-extra": "^11.0.4",
+    "@types/semver": "^7.5.6",
+    "@types/xml2js": "^0.4.14",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1"
+  },
+  "keywords": [
+    "audit",
+    "flutter",
+    "algeria",
+    "marketplace",
+    "banking",
+    "security",
+    "performance"
+  ],
+  "author": "Algeria Marketplace Team",
+  "license": "MIT"
+}

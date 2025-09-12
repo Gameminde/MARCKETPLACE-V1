@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Algeria Security & Performance Audit",
+  "description": "Audit sécurité banking + performance 45M utilisateurs",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "marketplace/flutter/**/*.dart",
+      "marketplace/backend/**/*.js",
+      "marketplace/backend/**/*.ts",
+      "security-scan.js",
+      "integration_test.js",
+      "logs/*.log"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Effectuer audit sécurité et performance niveau banking Algeria :\n\nSÉCURITÉ BANKING:\n- Encryption data at rest/transit vérifiée\n- Authentication OAuth 2.0 implémentée\n- Input validation stricte sur tous forms\n- ProGuard obfuscation configurée\n- Network security policy définie\n- Permissions Android minimales\n\nPERFORMANCE SCALABILITÉ:\n- Cold start time < 3 secondes\n- API response time < 500ms\n- 60 FPS animations maintenues\n- Memory leaks détectés et corrigés\n- Offline-first functionality testée\n- Database queries optimisées\n\nCOMPLIANCE ALGERIA:\n- Support CIB/EDAHABIA APIs ready\n- DZD currency formatting correct\n- Date/time Algeria timezone\n- Arabic RTL layout fonctionnel\n\nFournir score /100 et plan remediation."
+  }
+}

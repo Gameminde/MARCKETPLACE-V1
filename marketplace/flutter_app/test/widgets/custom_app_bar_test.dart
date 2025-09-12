@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:marketplace/widgets/custom_app_bar.dart';
-import 'package:marketplace/providers/cart_provider.dart';
-import 'package:marketplace/providers/search_provider.dart';
+import '../../lib/widgets/custom_app_bar.dart';
+import '../../lib/providers/cart_provider.dart';
+import '../../lib/providers/search_provider.dart';
 
 void main() {
   group('CustomAppBar Widget Tests', () {

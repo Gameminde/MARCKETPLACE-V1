@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:marketplace/providers/auth_provider.dart';
-import 'package:marketplace/models/user.dart';
+import '../../lib/providers/auth_provider_secure.dart';
+import '../../lib/models/user.dart';
 
 void main() {
   group('AuthProvider Tests', () {
