@@ -12,19 +12,15 @@ class EnvironmentSecure {
 
     _environment = environment;
 
-    // Temporarily skip loading .env file to avoid blocking
-    print('Using default environment values');
-    _initialized = true;
-    
-    // Commented out for debugging
-    // try {
-    //   await dotenv.load(fileName: '.env.$environment');
-    //   _initialized = true;
-    // } catch (e) {
-    //   // Fallback to development if .env file not found
-    //   print('Warning: .env.$environment not found, using defaults');
-    //   _initialized = true;
-    // }
+    try {
+      await dotenv.load(fileName: '.env.$environment');
+      print('Loaded environment configuration for: $environment');
+      _initialized = true;
+    } catch (e) {
+      // Fallback to development if .env file not found
+      print('Warning: .env.$environment not found, using defaults');
+      _initialized = true;
+    }
   }
 
   // Environment detection
@@ -35,12 +31,12 @@ class EnvironmentSecure {
 
   // API Configuration
   static String get apiBaseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:3001/api';
+      dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3001/api';
 
-  static String get wsUrl => dotenv.env['WS_URL'] ?? 'ws://localhost:3001/ws';
+  static String get wsUrl => dotenv.env['WS_URL'] ?? 'ws://10.0.2.2:3001/ws';
 
   static String get cdnUrl =>
-      dotenv.env['CDN_URL'] ?? 'http://localhost:3001/uploads';
+      dotenv.env['CDN_URL'] ?? 'http://10.0.2.2:3001/uploads';
 
   // Stripe Configuration
   static String get stripePublishableKey =>

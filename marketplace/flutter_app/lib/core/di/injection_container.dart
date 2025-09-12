@@ -12,7 +12,6 @@ import '../../providers/product_provider.dart';
 final getIt = GetIt.instance;
 
 /// Configure dependency injection
-@InjectableInit()
 void configureDependencies() {
   // Register services
   getIt.registerLazySingleton<SecureStorageService>(
