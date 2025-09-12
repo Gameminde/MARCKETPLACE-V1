@@ -9,7 +9,7 @@ Mobile Application (Flutter)
 ## Issues Analysis
 
 ### 1. Android Configuration Issues
-- **Problem**: ClassNotFoundExceptionClassNotFoundException for MainActivity
+- **Problem**: ClassNotFoundException for MainActivity
 - **Root Cause**: Mismatch between applicationId in build.gradle and expected package name
 - **Current Status**: Already correctly configured with:
   - applicationId "com.marketplace.algeria" in build.gradle
@@ -169,7 +169,7 @@ After implementing the fixes:
 
 ## Data Flow
 
-```
+```mermaid
 graph TD
     A[Main App] --> B[Providers]
     B --> C[Models]
