@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:marketplace/main.dart' as app;
-import 'package:marketplace/providers/auth_provider.dart';
-import 'package:marketplace/providers/cart_provider.dart';
-import 'package:marketplace/providers/search_provider.dart';
+import 'package:marketplace_app/main.dart' as app;
+import 'package:marketplace_app/providers/auth_provider.dart';
+import 'package:marketplace_app/providers/cart_provider.dart';
+import 'package:marketplace_app/providers/search_provider.dart';
 
 /// Integration tests for critical user flows in the marketplace app
 /// 
