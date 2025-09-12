@@ -340,7 +340,7 @@ void main() {
     group('Responsive Design', () {
       testWidgets('ProductCard - mobile size', (tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(375, 667); // iPhone SE
-        tester.binding.window.devicePixelRatioTestValue = 2.0;
+        tester.view.devicePixelRatio = 2.0;
         
         await tester.pumpWidget(
           createTestableWidget(
@@ -367,7 +367,7 @@ void main() {
 
       testWidgets('ProductCard - tablet size', (tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(768, 1024); // iPad
-        tester.binding.window.devicePixelRatioTestValue = 2.0;
+        tester.view.devicePixelRatio = 2.0;
         
         await tester.pumpWidget(
           createTestableWidget(
